@@ -294,8 +294,14 @@ function parseBusinesses(elements, city, lat, lon) {
     ].filter(Boolean).join(', ') || `${city} (Peta Area)`;
     const categoryName = tags.amenity || tags.shop || tags.craft || tags.tourism || tags.office || tags.leisure || tags.healthcare || 'UMKM';
 
+    const social = [['facebook', tags['contact:facebook'] || tags.facebook], ['instagram', tags['contact:instagram'] || tags.instagram], ['tiktok', tags['contact:tiktok']], ['twitter', tags['contact:twitter'] || tags.twitter], ['youtube', tags['contact:youtube']]]
+      .filter(([, v]) => v).map(([t, v]) => ({ t, v: String(v).slice(0, 200) }));
     list.push({
       id: `osm_${uid}`,
+      source: ['OSM'],
+      suburb: String(tags['addr:suburb'] || tags['addr:district'] || tags['addr:village'] || ''),
+      social,
+      openingHours: String(tags.opening_hours || ''),
       name: String(name),
       category: capitalize(String(categoryName).replace(/_/g, ' ')),
       address,
