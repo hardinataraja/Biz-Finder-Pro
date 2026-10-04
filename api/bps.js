@@ -8,7 +8,7 @@
 // Ganti nilai di bawah dengan API key BPS milik pengguna.
 // Jangan menampilkan key ini ke frontend.
 // =====================================================
-const BPS_API_KEY = "PASTE_BPS_API_KEY_DI_SINI";
+const BPS_API_KEY = "50fb614f9879abb7c386d6c3c26b6c12";
 
 'use strict';
 
