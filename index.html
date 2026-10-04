@@ -449,13 +449,18 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
             showLoading(true);
 
             try {
-                // Fetch Geocode Area Bounds from Nominatim API
-                const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}`;
-                const geoRes = await fetch(geoUrl, { headers: { 'Accept-Language': 'id' } });
+                // Fetch Geocode Area Bounds from Nominatim API (URL params used to avoid CORS preflight)
+                const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&accept-language=id&q=${encodeURIComponent(city)}`;
+                const geoRes = await fetch(geoUrl);
+                
+                if (!geoRes.ok) {
+                    throw new Error('Gagal menghubungi server geocoding Nominatim.');
+                }
+                
                 const geoData = await geoRes.json();
 
                 if (!geoData || geoData.length === 0) {
-                    alert('Lokasi kota tidak ditemukan. Mohon periksa kembali ejaan nama kota.');
+                    showToast('Lokasi kota tidak ditemukan. Mohon periksa kembali ejaan nama kota.', 'error');
                     showLoading(false);
                     return;
                 }
@@ -497,17 +502,39 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
                     out body 60;
                 `;
 
-                const overpassUrl = 'https://overpass-api.de/api/interpreter';
-                const response = await fetch(overpassUrl, {
-                    method: 'POST',
-                    body: 'data=' + encodeURIComponent(overpassQuery)
-                });
+                // Multiple Overpass API Mirror Endpoints for Reliability on Vercel
+                const overpassEndpoints = [
+                    'https://overpass-api.de/api/interpreter',
+                    'https://overpass.kumi.systems/api/interpreter',
+                    'https://overpass.private.coffee/api/interpreter'
+                ];
 
-                if (!response.ok) {
-                    throw new Error('Server OSM sedang padat. Silakan coba data simulasi demo.');
+                let data = null;
+                let fetchSuccess = false;
+
+                for (const endpoint of overpassEndpoints) {
+                    try {
+                        const response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded'
+                            },
+                            body: 'data=' + encodeURIComponent(overpassQuery)
+                        });
+
+                        if (response.ok) {
+                            data = await response.json();
+                            fetchSuccess = true;
+                            break; // Stop loop if successful
+                        }
+                    } catch (err) {
+                        console.warn(`Endpoint ${endpoint} gagal, mencoba mirror selanjutnya...`);
+                    }
                 }
 
-                const data = await response.json();
+                if (!fetchSuccess || !data) {
+                    throw new Error('Semua server peta sedang padat. Beralih ke data simulasi.');
+                }
                 
                 let rawList = data.elements || [];
                 let parsedBusinesses = [];
@@ -557,11 +584,37 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
                 renderResults(currentResults);
                 showLoading(false);
 
+                if (filtered.length === 0) {
+                    showToast('Tidak ada bisnis ditemukan dengan kriteria tersebut.', 'info');
+                }
+
             } catch (err) {
                 console.error(err);
-                alert('Gagal mengambil data OSM: ' + err.message + '\n\nMenampilkan data demo.');
+                showToast(err.message || 'Gagal mengambil data real-time. Menampilkan data demo.', 'warning');
                 generateDemoData();
             }
+        }
+
+        // Helper Notification Toast
+        function showToast(message, type = 'info') {
+            const existingToast = document.getElementById('customToast');
+            if (existingToast) existingToast.remove();
+
+            const toast = document.createElement('div');
+            toast.id = 'customToast';
+            
+            let bgColor = 'bg-slate-800 text-white';
+            if (type === 'error') bgColor = 'bg-rose-600 text-white';
+            if (type === 'warning') bgColor = 'bg-amber-600 text-white';
+            if (type === 'info') bgColor = 'bg-emerald-600 text-white';
+
+            toast.className = `fixed bottom-20 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl shadow-2xl text-xs font-semibold flex items-center gap-2 transition-all duration-300 ${bgColor}`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info"></i> <span>${escapeHtml(message)}</span>`;
+            
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                if (toast) toast.remove();
+            }, 4000);
         }
 
         function generateDemoData() {
