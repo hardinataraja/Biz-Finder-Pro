@@ -1,1097 +1,317 @@
 <!DOCTYPE html>
-<html lang="id" class="h-full bg-slate-900">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Google Business Lead Finder - Mobile Friendly Prospeksi</title>
-    
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons CDN -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- SweetAlert2 CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        /* Smooth scrolling and touch callouts */
-        html, body {
-            -webkit-tap-highlight-color: transparent;
-            touch-action: manipulation;
-        }
-
-        /* Custom scrollbar */
-        .custom-scrollbar::-webkit-scrollbar {
-            height: 6px;
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 999px;
-        }
-        
-        /* Mobile safe area padding for bottom bar */
-        .pb-safe {
-            padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>bizfinder@root:~</title>
+<style>
+:root{--bg:#040a05;--pane:#071209;--fg:#3dff7a;--dim:#1c9a47;--mut:#6f9a7d;--warn:#ffd24d;--err:#ff5c5c;--line:#14401f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.55 ui-monospace,"Cascadia Mono",Menlo,Consolas,"Liberation Mono",monospace}
+body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px)}
+.wrap{max-width:1120px;margin:0 auto;padding:12px}
+.win{border:1px solid var(--line);border-radius:6px;background:var(--pane);margin-bottom:12px;overflow:hidden}
+.bar{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#0b1d0f;border-bottom:1px solid var(--line);color:var(--mut);font-size:12px}
+.bar i{width:10px;height:10px;border-radius:50%;background:#ff5f56}.bar i+i{background:#ffbd2e}.bar i+i+i{background:#27c93f}
+.bar b{margin-left:8px;font-weight:400}
+.body{padding:12px}
+pre.banner{margin:0 0 8px;color:var(--fg);font-size:11px;line-height:1.1;overflow:auto}
+.mut{color:var(--mut)}.warn{color:var(--warn)}.err{color:var(--err)}.dim{color:var(--dim)}
+.ps{color:var(--fg)}.ps:before{content:"root@bizfinder:~# ";color:var(--warn)}
+.cur:after{content:"█";animation:bl 1s steps(1) infinite}
+@keyframes bl{50%{opacity:0}}
+form{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;align-items:end}
+label{display:block;font-size:12px;color:var(--mut);margin-bottom:2px}
+input,select,textarea{width:100%;background:#020702;color:var(--fg);border:1px solid var(--line);border-radius:3px;padding:8px;font:inherit;outline:none}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
+select option{background:#020702}
+button,.btn{background:transparent;color:var(--fg);border:1px solid var(--dim);border-radius:3px;padding:8px 12px;font:inherit;cursor:pointer;text-decoration:none;display:inline-block;white-space:nowrap}
+button:hover,.btn:hover{background:var(--fg);color:#000}
+button:disabled{opacity:.5;cursor:wait}
+.go{background:var(--fg);color:#000;font-weight:700}
+.go:hover{background:#7dffa5}
+.hide{display:none!important}
+#hack{position:relative}
+#rain{position:absolute;inset:0;width:100%;height:100%;opacity:.35}
+#log{position:relative;height:230px;overflow:auto;padding:10px 12px;font-size:12.5px;white-space:pre-wrap;word-break:break-all}
+#prog{height:3px;background:var(--fg);width:0;box-shadow:0 0 8px var(--fg)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
+.tabs .on{background:var(--fg);color:#000}
+.tabs input{max-width:220px;margin-left:auto}
+.stats{color:var(--mut);margin-bottom:8px}.stats b{color:var(--fg);font-weight:400}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:13px}
+th{color:var(--mut);text-align:left;font-weight:400;border-bottom:1px dashed var(--dim);padding:6px 8px}
+td{padding:6px 8px;border-bottom:1px solid #0d2a14;vertical-align:top}
+tr:hover td{background:#0b1d0f}
+td button,td .btn{padding:3px 8px;font-size:12px}
+td a.w{color:var(--fg)}
+.empty{padding:22px 8px;color:var(--mut)}
+textarea{min-height:130px;resize:vertical}
+details summary{cursor:pointer;color:var(--mut)}
+@media (prefers-reduced-motion:reduce){.cur:after{animation:none}}
+</style>
 </head>
-<body class="bg-slate-900 text-slate-800 font-sans min-h-full flex flex-col antialiased">
+<body>
+<div class="wrap">
 
-    <!-- TOP NAVIGATION HEADER -->
-    <header class="bg-slate-900/95 backdrop-blur-md text-white border-b border-slate-800 sticky top-0 z-30 shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-900 font-extrabold text-xl shadow-lg shadow-emerald-500/20">
-                    <i class="fa-solid fa-bolt text-white"></i>
-                </div>
-                <div>
-                    <h1 class="font-bold text-base sm:text-lg leading-none flex items-center gap-2">
-                        BizFinder <span class="text-emerald-400">Pro</span>
-                        <span class="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">GRATIS</span>
-                    </h1>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Riset Prospek Web UMKM</p>
-                </div>
-            </div>
-            
-            <div class="flex items-center space-x-2">
-                <button type="button" onclick="openTemplateModal()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 text-xs font-semibold transition flex items-center gap-1.5 border border-slate-700">
-                    <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
-                    <span class="hidden sm:inline">Template Pitch</span>
-                    <span class="sm:hidden text-[11px]">Template</span>
-                </button>
-                
-                <button type="button" onclick="exportToCSV()" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-emerald-900/30">
-                    <i class="fa-solid fa-file-excel"></i>
-                    <span class="hidden sm:inline">Ekspor CSV</span>
-                </button>
-            </div>
-        </div>
-    </header>
+<div class="win">
+  <div class="bar"><i></i><i></i><i></i><b>bizfinder@root: ~</b></div>
+  <div class="body">
+<pre class="banner" aria-label="Biz Finder Pro">
+ ___ _        ___ _         _             ___
+| _ |_)___   | __(_)_ _  __| |___ _ _    | _ \_ _ ___
+| _ \ |_ /   | _|| | ' \/ _` / -_) '_|   |  _/ '_/ _ \
+|___/_/__|   |_| |_|_||_\__,_\___|_|     |_| |_| \___/</pre>
+    <div class="mut">Pencari prospek UMKM dari data OpenStreetMap. Ketik lokasi, pilih kategori, jalankan.</div>
+  </div>
+</div>
 
-    <!-- MAIN CONTENT AREA -->
-    <main class="flex-1 bg-slate-100 pb-safe">
-        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+<div class="win">
+  <div class="bar"><i></i><i></i><i></i><b>scan.sh</b></div>
+  <div class="body">
+    <form id="f" autocomplete="off">
+      <div><label for="city">--lokasi</label><input id="city" placeholder="Surabaya, Mojosari, Malang..." required></div>
+      <div><label for="cat">--kategori</label>
+        <select id="cat">
+          <option value="all">Semua jenis bisnis</option>
+          <option value="restaurant">Kuliner / Cafe / Restoran</option>
+          <option value="hairdresser">Salon &amp; Barbershop</option>
+          <option value="car_repair">Bengkel &amp; Otomotif</option>
+          <option value="clothes">Toko Baju &amp; Butik</option>
+          <option value="clinic">Klinik &amp; Praktik Medis</option>
+          <option value="hotel">Hotel &amp; Penginapan</option>
+          <option value="laundry">Laundry &amp; Jasa</option>
+          <option value="custom">Tulis sendiri (tag OSM)</option>
+        </select></div>
+      <div id="cc" class="hide"><label for="cust">--kategori-custom</label><input id="cust" placeholder="bakery, gym, dentist..."></div>
+      <div><label for="wf">--website</label>
+        <select id="wf">
+          <option value="no_website">Hanya yang TANPA website</option>
+          <option value="all">Semua bisnis</option>
+          <option value="has_website">Hanya yang punya website</option>
+        </select></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button type="submit" id="go" class="go">./cari_bisnis.sh</button>
+        <button type="button" id="demo">--demo</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-            <!-- MOBILE HERO / INFO BOX -->
-            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl relative overflow-hidden border border-slate-700/80">
-                <div class="relative z-10 max-w-2xl">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-semibold border border-emerald-500/30">
-                            <i class="fa-solid fa-radar mr-1.5 text-emerald-400 animate-pulse"></i> Radar Prospek Klien
-                        </span>
-                    </div>
-                    <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight text-white mb-1.5">
-                        Cari UMKM Lokal Tanpa Website
-                    </h2>
-                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                        Temukan toko, restoran, & jasa lokal yang <strong class="text-rose-400 font-semibold underline underline-offset-2">belum punya website</strong>. Hubungi pemiliknya langsung lewat WhatsApp untuk menawarkan jasa Anda!
-                    </p>
-                </div>
-                <i class="fa-solid fa-store absolute -right-4 -bottom-6 text-8xl text-slate-800/40 pointer-events-none"></i>
-            </div>
+<div class="win hide" id="hack">
+  <div class="bar"><i></i><i></i><i></i><b id="hacktitle">proses pemindaian</b></div>
+  <div id="prog"></div>
+  <div style="position:relative"><canvas id="rain"></canvas><div id="log" aria-live="polite"></div></div>
+</div>
 
-            <!-- SEARCH FORM CARD -->
-            <section class="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 space-y-4">
-                <form id="searchForm" onsubmit="handleSearch(event)" class="space-y-3.5">
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4">
-                        
-                        <!-- Input Kota / Lokasi -->
-                        <div class="md:col-span-5">
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                                <i class="fa-solid fa-location-dot text-rose-500 mr-1"></i> Kota / Lokasi Bisnis
-                            </label>
-                            <div class="relative">
-                                <input type="text" id="cityInput" placeholder="Contoh: Surabaya, Mojosari, Malang..." required
-                                    class="w-full h-11 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
-                                <i class="fa-solid fa-city absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                            </div>
-                        </div>
-
-                        <!-- Select Kategori Bisnis -->
-                        <div class="md:col-span-4">
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                                <i class="fa-solid fa-store text-emerald-500 mr-1"></i> Jenis Kategori
-                            </label>
-                            <div class="relative">
-                                <select id="categorySelect" onchange="toggleCustomCategory(this.value)"
-                                    class="w-full h-11 pl-10 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition appearance-none cursor-pointer">
-                                    <option value="all">🔍 Semua Jenis Bisnis UMKM</option>
-                                    <option value="restaurant">🍽️ Kuliner / Cafe / Restoran</option>
-                                    <option value="hairdresser">💈 Salon & Barbershop</option>
-                                    <option value="car_repair">🔧 Bengkel & Otomotif</option>
-                                    <option value="clothes">👗 Toko Baju & Boutique</option>
-                                    <option value="clinic">🏥 Klinik & Praktik Medis</option>
-                                    <option value="hotel">🏨 Hotel & Penginapan</option>
-                                    <option value="laundry">🧺 Laundry & Services</option>
-                                    <option value="custom">✏️ Tulis Kategori Sendiri</option>
-                                </select>
-                                <i class="fa-solid fa-layer-group absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                                <i class="fa-solid fa-chevron-down absolute right-3.5 top-4 text-slate-400 text-xs pointer-events-none"></i>
-                            </div>
-                        </div>
-
-                        <!-- Custom Category Input (Hidden default) -->
-                        <div id="customCategoryContainer" class="hidden md:col-span-3">
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                                Kategori Custom (Tag OSM)
-                            </label>
-                            <input type="text" id="customCategoryInput" placeholder="bakery, gym, dentist..."
-                                class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
-                        </div>
-
-                        <!-- Filter Website -->
-                        <div class="md:col-span-3">
-                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
-                                <i class="fa-solid fa-filter text-blue-500 mr-1"></i> Filter Status Web
-                            </label>
-                            <select id="websiteFilter"
-                                class="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition appearance-none cursor-pointer">
-                                <option value="no_website">🔥 Khusus TANPA Website</option>
-                                <option value="all">Semua Bisnis (Semua)</option>
-                                <option value="has_website">Hanya Yang Punya Website</option>
-                            </select>
-                        </div>
-
-                    </div>
-
-                    <!-- Submit Buttons Bar -->
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-2 border-t border-slate-100">
-                        <button type="button" onclick="generateDemoData()" 
-                            class="w-full sm:w-auto h-10 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
-                            <span>Coba Data Demo</span>
-                        </button>
-
-                        <button type="submit" id="searchSubmitBtn" 
-                            class="w-full sm:w-auto h-11 sm:h-10 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-sm transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
-                            <span>Cari Bisnis Sekarang</span>
-                        </button>
-                    </div>
-
-                </form>
-            </section>
-
-            <!-- STATS DASHBOARD BAR -->
-            <div id="statsSection" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
-                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shrink-0">
-                        <i class="fa-solid fa-building-user"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider truncate">Total Bisnis</p>
-                        <p id="statTotal" class="text-lg sm:text-xl font-bold text-slate-800 leading-none mt-0.5">0</p>
-                    </div>
-                </div>
-
-                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shrink-0">
-                        <i class="fa-solid fa-circle-xmark"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-extrabold text-rose-400 uppercase tracking-wider truncate">Tanpa Website</p>
-                        <p id="statNoWeb" class="text-lg sm:text-xl font-bold text-rose-600 leading-none mt-0.5">0</p>
-                    </div>
-                </div>
-
-                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shrink-0">
-                        <i class="fa-brands fa-whatsapp"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-extrabold text-emerald-500 uppercase tracking-wider truncate">Ada WA/Telp</p>
-                        <p id="statWithPhone" class="text-lg sm:text-xl font-bold text-emerald-600 leading-none mt-0.5">0</p>
-                    </div>
-                </div>
-
-                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shrink-0">
-                        <i class="fa-solid fa-sack-dollar"></i>
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-[10px] font-extrabold text-amber-500 uppercase tracking-wider truncate">Estimasi Jasa</p>
-                        <p id="statOpportunity" class="text-sm sm:text-base font-bold text-amber-600 leading-none mt-0.5 truncate">Rp 0</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RESULTS CONTAINER SECTION -->
-            <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
-                
-                <!-- TOP BAR CONTROLS & FILTER -->
-                <div class="p-3.5 sm:p-4 border-b border-slate-200/80 bg-slate-50/70 flex flex-col sm:flex-row items-center justify-between gap-3">
-                    
-                    <!-- Search inside table/cards -->
-                    <div class="relative w-full sm:w-64">
-                        <input type="text" id="tableSearchInput" oninput="filterTableByText(this.value)" placeholder="Cari nama bisnis / alamat..."
-                            class="w-full h-9 pl-8 pr-3 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
-                    </div>
-
-                    <!-- Mobile / Desktop View Mode Switcher -->
-                    <div class="flex items-center justify-between w-full sm:w-auto gap-2">
-                        <span id="resultSummaryCount" class="text-xs text-slate-500 font-semibold">
-                            Menampilkan <strong id="visibleCount" class="text-slate-800">0</strong> bisnis
-                        </span>
-
-                        <div class="flex items-center bg-slate-200/80 p-0.5 rounded-xl text-xs">
-                            <button type="button" id="viewCardBtn" onclick="toggleDisplayMode('card')" class="px-2.5 py-1 rounded-lg font-bold transition bg-white text-slate-800 shadow-sm">
-                                <i class="fa-solid fa-grip-vertical"></i> Card
-                            </button>
-                            <button type="button" id="viewTableBtn" onclick="toggleDisplayMode('table')" class="px-2.5 py-1 rounded-lg font-bold text-slate-500 hover:text-slate-800 transition">
-                                <i class="fa-solid fa-table-cells"></i> Tabel
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- LOADING STATE -->
-                <div id="loadingState" class="hidden py-16 text-center px-4">
-                    <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-emerald-500 border-t-transparent mb-3"></div>
-                    <p class="font-bold text-slate-800 text-sm">Mencari Bisnis Real-Time...</p>
-                    <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">Memindai database peta OpenStreetMap untuk area lokasi pilihan Anda.</p>
-                </div>
-
-                <!-- EMPTY STATE -->
-                <div id="emptyState" class="py-14 text-center px-4">
-                    <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto text-slate-400 text-xl mb-3">
-                        <i class="fa-solid fa-store-slash"></i>
-                    </div>
-                    <h3 class="font-bold text-slate-800 text-sm mb-1">Belum Ada Bisnis Ditampilkan</h3>
-                    <p class="text-xs text-slate-500 max-w-xs mx-auto mb-4">Ketik Kota & Pilih Kategori di atas, lalu tekan tombol "Cari Bisnis Sekarang".</p>
-                    <button type="button" onclick="generateDemoData()" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 active:scale-95 transition">
-                        Tampilkan Data Simulasi
-                    </button>
-                </div>
-
-                <!-- MOBILE CARD VIEW GRID (Primary for Mobile) -->
-                <div id="cardsContainer" class="hidden p-3.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    <!-- Dynamic Mobile Cards Inserted Here -->
-                </div>
-
-                <!-- DESKTOP TABLE VIEW CONTAINER -->
-                <div id="tableContainer" class="hidden overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
-                                <th class="py-3 px-4 w-10">#</th>
-                                <th class="py-3 px-4">Nama Bisnis</th>
-                                <th class="py-3 px-4">Kategori</th>
-                                <th class="py-3 px-4">Alamat Lengkap</th>
-                                <th class="py-3 px-4">Kontak / WA</th>
-                                <th class="py-3 px-4 text-center">Status Web</th>
-                                <th class="py-3 px-4 text-center">Aksi Prospeksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="businessTableBody" class="divide-y divide-slate-100 text-xs text-slate-700">
-                            <!-- Dynamic Table Rows Inserted Here -->
-                        </tbody>
-                    </table>
-                </div>
-
-            </div>
-
-        </div>
-    </main>
-
-    <!-- STICKY MOBILE BOTTOM NAVIGATION BAR -->
-    <nav class="fixed bottom-0 inset-x-0 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 z-40 sm:hidden">
-        <div class="grid grid-cols-2 h-14">
-            <button type="button" id="navTabSearch" onclick="switchTab('search')" 
-                class="flex flex-col items-center justify-center text-emerald-400 font-bold transition">
-                <i class="fa-solid fa-magnifying-glass text-base"></i>
-                <span class="text-[10px] mt-0.5">Hasil Prospek</span>
-            </button>
-
-            <button type="button" id="navTabSaved" onclick="switchTab('saved')" 
-                class="flex flex-col items-center justify-center text-slate-400 font-medium transition relative">
-                <div class="relative">
-                    <i class="fa-solid fa-bookmark text-base"></i>
-                    <span id="savedCountBadge" class="absolute -top-1 -right-2.5 bg-amber-500 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
-                </div>
-                <span class="text-[10px] mt-0.5">Tersimpan</span>
-            </button>
-        </div>
-    </nav>
-
-    <!-- MODAL: TEMPLATE PITCH WHATSAPP -->
-    <div id="templateModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto">
-            
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h3 class="font-extrabold text-base text-slate-800 flex items-center gap-2">
-                    <i class="fa-brands fa-whatsapp text-emerald-600 text-xl"></i>
-                    Template Chat WA Pitch
-                </h3>
-                <button type="button" onclick="closeTemplateModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
-            </div>
-
-            <div class="space-y-3">
-                <p class="text-xs text-slate-500">Pesan otomatis ini akan dikirim saat Anda menekan tombol <strong class="text-emerald-600 font-semibold">Chat WA</strong>.</p>
-                
-                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-[11px] text-slate-600 space-y-1">
-                    <p class="font-bold text-slate-700">Variabel Otomatis:</p>
-                    <p><code class="bg-slate-200 px-1.5 py-0.5 rounded text-slate-800 font-mono">{nama_bisnis}</code> = Nama Tempat Usaha</p>
-                    <p><code class="bg-slate-200 px-1.5 py-0.5 rounded text-slate-800 font-mono">{kota}</code> = Nama Kota / Area</p>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Isi Pesan Penawaran:</label>
-                    <textarea id="waTemplateText" rows="6" 
-                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 font-sans leading-relaxed"></textarea>
-                </div>
-            </div>
-
-            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
-                <button type="button" onclick="resetWaTemplate()" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100 transition">
-                    Reset Default
-                </button>
-                <button type="button" onclick="saveWaTemplate()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition active:scale-95">
-                    Simpan Template
-                </button>
-            </div>
-
-        </div>
+<div class="win">
+  <div class="bar"><i></i><i></i><i></i><b>hasil.log</b></div>
+  <div class="body">
+    <div class="tabs">
+      <button type="button" id="tS" class="on">[hasil]</button>
+      <button type="button" id="tV">[tersimpan:<span id="sc">0</span>]</button>
+      <button type="button" id="ex">export.csv</button>
+      <input id="q" placeholder="grep nama / alamat..." aria-label="Filter hasil">
     </div>
-
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        // Global States
-        let currentResults = [];
-        let savedLeads = JSON.parse(localStorage.getItem('biz_finder_saved_leads') || '[]');
-        let currentTab = 'search'; // 'search' or 'saved'
-        let displayMode = 'card'; // 'card' or 'table'
-
-        // Default WhatsApp Pitch Template
-        const defaultWaPitch = `Halo Kak, salam kenal! Saya perhatikan bisnis {nama_bisnis} di {kota} ulasan & layanannya sangat populer. 
-
-Namun di internet belum terdapat Website Resmi untuk pendaftaran/katalog online. 
-
-Saya freelancer web developer profesional. Saya sedang ada promo paket website UMKM lengkap dengan domain & desain elegan agar usaha Kakak makin dipercaya pelanggan Google.
-
-Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
-
-        let activeWaTemplate = localStorage.getItem('biz_finder_wa_template') || defaultWaPitch;
-
-        // On Page Load Initialization
-        window.addEventListener('DOMContentLoaded', () => {
-            updateSavedCount();
-            document.getElementById('waTemplateText').value = activeWaTemplate;
-            
-            // Default display mode based on viewport width
-            if (window.innerWidth >= 768) {
-                displayMode = 'table';
-            } else {
-                displayMode = 'card';
-            }
-            updateDisplayButtons();
-        });
-
-        function toggleCustomCategory(value) {
-            const customContainer = document.getElementById('customCategoryContainer');
-            if (value === 'custom') {
-                customContainer.classList.remove('hidden');
-            } else {
-                customContainer.classList.add('hidden');
-            }
-        }
-
-        // Pencarian dilakukan melalui Vercel Serverless Function agar API
-        // Nominatim/Overpass tidak dipanggil langsung dari browser.
-        async function handleSearch(e) {
-            if (e) e.preventDefault();
-
-            const cityInput = document.getElementById('cityInput');
-            const city = cityInput ? cityInput.value.trim() : '';
-            const categorySelect = document.getElementById('categorySelect').value;
-            const customCategory = document.getElementById('customCategoryInput').value.trim();
-            const websiteFilter = document.getElementById('websiteFilter').value;
-
-            if (!city) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Kota Belum Diisi',
-                    text: 'Silakan masukkan nama kota atau lokasi bisnis.',
-                    confirmButtonColor: '#10b981',
-                    customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
-                });
-                return false;
-            }
-
-            let categoryTag = categorySelect;
-            if (categorySelect === 'custom') {
-                if (!customCategory) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Kategori Belum Diisi',
-                        text: 'Silakan tulis kategori custom.',
-                        confirmButtonColor: '#10b981',
-                        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
-                    });
-                    return false;
-                }
-                categoryTag = customCategory.toLowerCase();
-            }
-
-            // Halaman dibuka langsung dari file (file://) -> /api/search tidak ada.
-            if (location.protocol === 'file:') {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Harus dijalankan lewat server',
-                    text: 'Buka lewat URL Vercel (atau jalankan "vercel dev"). Jika index.html dibuka langsung dari folder, endpoint /api/search tidak tersedia.',
-                    confirmButtonColor: '#10b981'
-                });
-                return false;
-            }
-
-            showLoading(true);
-
-            const controller = new AbortController();
-            const abortTimer = setTimeout(() => controller.abort(), 45000);
-
-            try {
-                const response = await fetch('/api/search', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        city,
-                        category: categoryTag,
-                        websiteFilter
-                    }),
-                    signal: controller.signal
-                });
-
-                let payload = null;
-                try {
-                    payload = await response.json();
-                } catch (parseError) {
-                    if (response.status === 404) {
-                        throw new Error('Endpoint /api/search tidak ditemukan (HTTP 404). Pastikan file ada di api/search.js lalu deploy ulang.');
-                    }
-                    if (response.status === 504 || response.status === 408) {
-                        throw new Error('Server kehabisan waktu (HTTP ' + response.status + '). Coba lokasi/kategori yang lebih spesifik.');
-                    }
-                    throw new Error(`Fungsi server error (HTTP ${response.status}). Cek Vercel > Logs untuk detailnya.`);
-                }
-
-                if (!response.ok || !payload.ok) {
-                    const providerMessage = payload && payload.error
-                        ? payload.error
-                        : `Pencarian gagal (HTTP ${response.status}).`;
-                    const err = new Error(providerMessage);
-                    err.details = payload && Array.isArray(payload.details) ? payload.details : [];
-                    err.code = payload && payload.code;
-                    throw err;
-                }
-
-                currentResults = Array.isArray(payload.results) ? payload.results : [];
-                renderResults(currentResults);
-
-                if (currentResults.length === 0) {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Tidak Ada Hasil',
-                        text: 'Tidak ada bisnis ditemukan dengan kriteria tersebut. Data OpenStreetMap di beberapa daerah masih terbatas; coba filter "Semua Bisnis", kategori lain, atau nama lokasi yang lebih besar.',
-                        confirmButtonColor: '#10b981',
-                        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
-                    });
-                }
-            } catch (err) {
-                console.error('Pencarian gagal:', err);
-
-                const message = err && err.name === 'AbortError'
-                    ? 'Permintaan terlalu lama (lebih dari 45 detik).'
-                    : (err && err.message) || 'Network Error';
-                const isNotFound = err && err.code === 'LOCATION_NOT_FOUND';
-                const detailHtml = (err && err.details && err.details.length)
-                    ? `<p class="text-[10px] text-slate-400 break-words">${err.details.map(escapeHtml).join('<br>')}</p>`
-                    : '';
-
-                renderResults(currentResults);
-
-                Swal.fire({
-                    icon: isNotFound ? 'warning' : 'error',
-                    title: isNotFound ? 'Lokasi Tidak Ditemukan' : 'Pencarian Gagal',
-                    html: `
-                        <div class="text-left text-xs space-y-2 text-slate-600">
-                            <p><strong>Penyebab:</strong> <span class="text-rose-600">${escapeHtml(message)}</span></p>
-                            ${detailHtml}
-                            ${isNotFound ? '' : '<p class="text-slate-500">Coba lagi beberapa saat kemudian atau gunakan area/kategori yang lebih spesifik.</p>'}
-                            <p class="font-semibold text-slate-700">Apakah Anda ingin menampilkan Data Simulasi Demo?</p>
-                        </div>
-                    `,
-                    showCancelButton: true,
-                    confirmButtonText: 'Tampilkan Data Demo',
-                    cancelButtonText: 'Batal',
-                    confirmButtonColor: '#10b981',
-                    cancelButtonColor: '#64748b',
-                    customClass: {
-                        popup: 'rounded-2xl',
-                        confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5',
-                        cancelButton: 'rounded-xl font-bold text-xs px-4 py-2.5'
-                    }
-                }).then((result) => {
-                    if (result.isConfirmed) generateDemoData();
-                });
-            } finally {
-                clearTimeout(abortTimer);
-                showLoading(false);
-            }
-
-            return false;
-        }
-
-        function generateDemoData() {
-            showLoading(true);
-            const city = document.getElementById('cityInput').value || 'Surabaya';
-            
-            setTimeout(() => {
-                const demoList = [
-                    {
-                        id: 'demo_1',
-                        name: 'Ayam Bakar Pak Joko Local',
-                        category: 'Restoran / Kuliner',
-                        address: 'Jl. Raya Darmo No. 42, ' + city,
-                        city: city,
-                        phone: '081234567890',
-                        website: '',
-                    },
-                    {
-                        id: 'demo_2',
-                        name: 'Barbershop Premiere Gentlemans',
-                        category: 'Salon & Barbershop',
-                        address: 'Jl. Pemuda No. 15, ' + city,
-                        city: city,
-                        phone: '085711223344',
-                        website: '',
-                    },
-                    {
-                        id: 'demo_3',
-                        name: 'Bengkel Motor Jaya Abadi',
-                        category: 'Bengkel & Otomotif',
-                        address: 'Jl. Ahmad Yani No. 88, ' + city,
-                        city: city,
-                        phone: '081900887766',
-                        website: '',
-                    },
-                    {
-                        id: 'demo_4',
-                        name: 'Klinik Gigi Smile Care',
-                        category: 'Klinik Kesehatan',
-                        address: 'Jl. Diponegoro No. 101, ' + city,
-                        city: city,
-                        phone: '082199887711',
-                        website: 'https://smilecare-demo.com',
-                    },
-                    {
-                        id: 'demo_5',
-                        name: 'Toko Pakaian Fashion Hits',
-                        category: 'Boutique / Ritel',
-                        address: 'Jl. Basuki Rahmat No. 24, ' + city,
-                        city: city,
-                        phone: '081344556677',
-                        website: '',
-                    },
-                    {
-                        id: 'demo_6',
-                        name: 'Laundry Express Clean & Fresh',
-                        category: 'Laundry / Jasa',
-                        address: 'Jl. Mawar No. 7, ' + city,
-                        city: city,
-                        phone: '',
-                        website: '',
-                    }
-                ];
-
-                const websiteFilter = document.getElementById('websiteFilter').value;
-                let filtered = demoList;
-                if (websiteFilter === 'no_website') {
-                    filtered = demoList.filter(b => !b.website);
-                } else if (websiteFilter === 'has_website') {
-                    filtered = demoList.filter(b => b.website !== '');
-                }
-
-                currentResults = filtered;
-                renderResults(currentResults);
-                showLoading(false);
-            }, 400);
-        }
-
-        function renderResults(dataList) {
-            const tbody = document.getElementById('businessTableBody');
-            const cardsContainer = document.getElementById('cardsContainer');
-            const tableContainer = document.getElementById('tableContainer');
-            const emptyState = document.getElementById('emptyState');
-
-            tbody.innerHTML = '';
-            cardsContainer.innerHTML = '';
-
-            if (!dataList || dataList.length === 0) {
-                tableContainer.classList.add('hidden');
-                cardsContainer.classList.add('hidden');
-                emptyState.classList.remove('hidden');
-                updateStats(0, 0, 0);
-                document.getElementById('visibleCount').innerText = '0';
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-            document.getElementById('visibleCount').innerText = dataList.length;
-
-            let countNoWeb = 0;
-            let countWithPhone = 0;
-
-            dataList.forEach((biz, index) => {
-                const hasWeb = !!biz.website;
-                const hasPhone = !!biz.phone;
-
-                if (!hasWeb) countNoWeb++;
-                if (hasPhone) countWithPhone++;
-
-                const isSaved = savedLeads.some(item => item.name === biz.name && item.address === biz.address);
-
-                // --- 1. RENDER MOBILE CARD ITEM ---
-                const card = document.createElement('div');
-                card.className = 'bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-3 relative';
-                
-                card.innerHTML = `
-                    <div class="space-y-1.5">
-                        <div class="flex items-start justify-between gap-2">
-                            <div>
-                                <span class="inline-block bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider mb-1">
-                                    ${escapeHtml(biz.category || 'UMKM')}
-                                </span>
-                                <h3 class="font-bold text-slate-900 text-sm leading-snug">${escapeHtml(biz.name)}</h3>
-                            </div>
-                            
-                            <button type="button" onclick="toggleBookmarkLead(${index})" 
-                                class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs transition ${isSaved ? 'bg-amber-50 text-amber-500 border border-amber-200' : 'bg-slate-50 text-slate-400 border border-slate-200'}">
-                                <i class="fa-solid fa-bookmark"></i>
-                            </button>
-                        </div>
-
-                        <p class="text-xs text-slate-500 flex items-start gap-1.5 pt-1">
-                            <i class="fa-solid fa-location-dot text-slate-400 mt-0.5 text-xs"></i>
-                            <span class="line-clamp-2">${escapeHtml(biz.address)}</span>
-                        </p>
-                    </div>
-
-                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
-                        <!-- Website Status Badge -->
-                        ${!hasWeb ? `
-                            <span class="inline-flex items-center gap-1 text-rose-600 font-bold bg-rose-50 px-2.5 py-1 rounded-full text-[10px] border border-rose-200">
-                                <i class="fa-solid fa-fire text-rose-500"></i> TANPA WEB
-                            </span>
-                        ` : `
-                            <a href="${escapeHtml(biz.website)}" target="_blank" class="inline-flex items-center gap-1 text-emerald-700 font-medium bg-emerald-50 px-2.5 py-1 rounded-full text-[10px] hover:underline">
-                                <i class="fa-solid fa-globe text-emerald-500"></i> Ada Web
-                            </a>
-                        `}
-
-                        <!-- Quick Actions -->
-                        <div class="flex items-center space-x-1.5">
-                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(biz.name + ' ' + biz.address)}" target="_blank"
-                                class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xs hover:bg-slate-200 transition" title="Cek Maps">
-                                <i class="fa-solid fa-map-location-dot"></i>
-                            </a>
-
-                            ${hasPhone ? `
-                                <button type="button" onclick="sendWaPitch('${safeEnc(biz.name)}', '${safeEnc(biz.city)}', '${escapeHtml(biz.phone)}')" 
-                                    class="h-8 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs transition flex items-center gap-1 shadow-sm">
-                                    <i class="fa-brands fa-whatsapp text-sm"></i> Chat WA
-                                </button>
-                            ` : `
-                                <span class="text-[10px] text-slate-400 italic">No WA -</span>
-                            `}
-                        </div>
-                    </div>
-                `;
-                cardsContainer.appendChild(card);
-
-                // --- 2. RENDER DESKTOP TABLE ROW ITEM ---
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-slate-50/80 transition border-b border-slate-100';
-
-                row.innerHTML = `
-                    <td class="py-3 px-4 font-mono text-slate-400 text-[11px]">${index + 1}</td>
-                    
-                    <td class="py-3 px-4">
-                        <div class="font-bold text-slate-800 text-xs">${escapeHtml(biz.name)}</div>
-                        <div class="text-[10px] text-slate-400">${escapeHtml(biz.city || '')}</div>
-                    </td>
-
-                    <td class="py-3 px-4">
-                        <span class="inline-block bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-medium border border-slate-200">
-                            ${escapeHtml(biz.category || 'UMKM')}
-                        </span>
-                    </td>
-
-                    <td class="py-3 px-4 max-w-xs text-slate-600 text-xs truncate" title="${escapeHtml(biz.address)}">
-                        ${escapeHtml(biz.address)}
-                    </td>
-
-                    <td class="py-3 px-4 font-mono">
-                        ${hasPhone ? `
-                            <div class="flex items-center gap-1.5 text-emerald-700 font-semibold text-xs">
-                                <i class="fa-brands fa-whatsapp text-emerald-500"></i>
-                                <span>${escapeHtml(biz.phone)}</span>
-                            </div>
-                        ` : `
-                            <span class="text-slate-400 italic text-[11px]">Tidak Ada</span>
-                        `}
-                    </td>
-
-                    <td class="py-3 px-4 text-center">
-                        ${!hasWeb ? `
-                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">
-                                Tanpa Website 🔥
-                            </span>
-                        ` : `
-                            <a href="${escapeHtml(biz.website)}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-medium">
-                                Ada Website
-                            </a>
-                        `}
-                    </td>
-
-                    <td class="py-3 px-4 text-center">
-                        <div class="flex items-center justify-center space-x-1.5">
-                            ${hasPhone ? `
-                                <button type="button" onclick="sendWaPitch('${safeEnc(biz.name)}', '${safeEnc(biz.city)}', '${escapeHtml(biz.phone)}')" 
-                                    class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-[11px] font-semibold transition flex items-center gap-1">
-                                    <i class="fa-brands fa-whatsapp"></i> Chat WA
-                                </button>
-                            ` : ''}
-
-                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(biz.name + ' ' + biz.address)}" target="_blank" 
-                                class="p-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs transition hover:bg-slate-200">
-                                <i class="fa-solid fa-map-location-dot"></i>
-                            </a>
-
-                            <button type="button" onclick="toggleBookmarkLead(${index})" 
-                                class="p-1.5 rounded-lg border text-xs transition ${isSaved ? 'bg-amber-50 text-amber-500 border-amber-300' : 'bg-slate-50 text-slate-400 border-slate-200'}">
-                                <i class="fa-solid fa-bookmark"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-
-                tbody.appendChild(row);
-            });
-
-            updateStats(dataList.length, countNoWeb, countWithPhone);
-            updateDisplayModeVisibility();
-        }
-
-        function toggleDisplayMode(mode) {
-            displayMode = mode;
-            updateDisplayButtons();
-            updateDisplayModeVisibility();
-        }
-
-        function updateDisplayButtons() {
-            const cardBtn = document.getElementById('viewCardBtn');
-            const tableBtn = document.getElementById('viewTableBtn');
-
-            if (displayMode === 'card') {
-                cardBtn.className = 'px-2.5 py-1 rounded-lg font-bold transition bg-white text-slate-800 shadow-sm';
-                tableBtn.className = 'px-2.5 py-1 rounded-lg font-bold text-slate-500 hover:text-slate-800 transition';
-            } else {
-                tableBtn.className = 'px-2.5 py-1 rounded-lg font-bold transition bg-white text-slate-800 shadow-sm';
-                cardBtn.className = 'px-2.5 py-1 rounded-lg font-bold text-slate-500 hover:text-slate-800 transition';
-            }
-        }
-
-        function updateDisplayModeVisibility() {
-            const cardsContainer = document.getElementById('cardsContainer');
-            const tableContainer = document.getElementById('tableContainer');
-            const emptyState = document.getElementById('emptyState');
-
-            if (!emptyState.classList.contains('hidden')) return;
-
-            if (displayMode === 'card') {
-                cardsContainer.classList.remove('hidden');
-                tableContainer.classList.add('hidden');
-            } else {
-                tableContainer.classList.remove('hidden');
-                cardsContainer.classList.add('hidden');
-            }
-        }
-
-        function updateStats(total, noWeb, withPhone) {
-            document.getElementById('statTotal').innerText = total;
-            document.getElementById('statNoWeb').innerText = noWeb;
-            document.getElementById('statWithPhone').innerText = withPhone;
-
-            const estRevenue = noWeb * 1500000;
-            document.getElementById('statOpportunity').innerText = 'Rp ' + estRevenue.toLocaleString('id-ID');
-        }
-
-        function sendWaPitch(encodedName, encodedCity, phone) {
-            const name = decodeURIComponent(encodedName);
-            const city = decodeURIComponent(encodedCity) || 'Anda';
-            
-            let message = activeWaTemplate
-                .replace(/{nama_bisnis}/g, name)
-                .replace(/{kota}/g, city);
-
-            const cleanPhone = cleanPhoneNumber(phone);
-            let formattedPhone = cleanPhone;
-
-            if (formattedPhone.startsWith('0')) {
-                formattedPhone = '62' + formattedPhone.slice(1);
-            }
-
-            const waUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
-            window.open(waUrl, '_blank');
-        }
-
-        function toggleBookmarkLead(index) {
-            const activeList = (currentTab === 'search') ? currentResults : savedLeads;
-            const targetBiz = activeList[index];
-
-            if (!targetBiz) return;
-
-            const existingIndex = savedLeads.findIndex(item => item.name === targetBiz.name && item.address === targetBiz.address);
-
-            if (existingIndex > -1) {
-                savedLeads.splice(existingIndex, 1);
-            } else {
-                savedLeads.push(targetBiz);
-            }
-
-            localStorage.setItem('biz_finder_saved_leads', JSON.stringify(savedLeads));
-            updateSavedCount();
-
-            if (currentTab === 'saved') {
-                renderResults(savedLeads);
-            } else {
-                renderResults(currentResults);
-            }
-        }
-
-        function updateSavedCount() {
-            const count = savedLeads.length;
-            document.getElementById('savedCountBadge').innerText = count;
-        }
-
-        function switchTab(tab) {
-            currentTab = tab;
-            const navTabSearch = document.getElementById('navTabSearch');
-            const navTabSaved = document.getElementById('navTabSaved');
-
-            if (tab === 'saved') {
-                navTabSaved.className = 'flex flex-col items-center justify-center text-emerald-400 font-bold transition relative';
-                navTabSearch.className = 'flex flex-col items-center justify-center text-slate-400 font-medium transition';
-                renderResults(savedLeads);
-            } else {
-                navTabSearch.className = 'flex flex-col items-center justify-center text-emerald-400 font-bold transition';
-                navTabSaved.className = 'flex flex-col items-center justify-center text-slate-400 font-medium transition relative';
-                renderResults(currentResults);
-            }
-        }
-
-        function filterTableByText(keyword) {
-            const activeList = (currentTab === 'search') ? currentResults : savedLeads;
-            if (!keyword.trim()) {
-                renderResults(activeList);
-                return;
-            }
-
-            const term = keyword.toLowerCase();
-            const filtered = activeList.filter(item => 
-                (item.name && item.name.toLowerCase().includes(term)) ||
-                (item.address && item.address.toLowerCase().includes(term)) ||
-                (item.category && item.category.toLowerCase().includes(term))
-            );
-
-            renderResults(filtered);
-        }
-
-        function exportToCSV() {
-            const activeList = (currentTab === 'search') ? currentResults : savedLeads;
-
-            if (!activeList || activeList.length === 0) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Data Kosong',
-                    text: 'Tidak ada data bisnis untuk diekspor.',
-                    confirmButtonColor: '#10b981',
-                    customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
-                });
-                return;
-            }
-
-            let csvContent = "data:text/csv;charset=utf-8,";
-            csvContent += "No,Nama Bisnis,Kategori,Alamat,Kota,Nomor Telepon,Website,Status Website\n";
-
-            activeList.forEach((biz, idx) => {
-                const row = [
-                    idx + 1,
-                    `"${(biz.name || '').replace(/"/g, '""')}"`,
-                    `"${(biz.category || '').replace(/"/g, '""')}"`,
-                    `"${(biz.address || '').replace(/"/g, '""')}"`,
-                    `"${(biz.city || '').replace(/"/g, '""')}"`,
-                    `"${biz.phone || ''}"`,
-                    `"${biz.website || ''}"`,
-                    biz.website ? "Punya Website" : "Tanpa Website (Prospek)"
-                ].join(",");
-                csvContent += row + "\n";
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Prospek_UMKM_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function openTemplateModal() {
-            document.getElementById('templateModal').classList.remove('hidden');
-        }
-
-        function closeTemplateModal() {
-            document.getElementById('templateModal').classList.add('hidden');
-        }
-
-        function saveWaTemplate() {
-            const text = document.getElementById('waTemplateText').value.trim();
-            if (!text) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Pesan Kosong',
-                    text: 'Pesan template tidak boleh kosong.',
-                    confirmButtonColor: '#10b981',
-                    customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
-                });
-                return;
-            }
-            activeWaTemplate = text;
-            localStorage.setItem('biz_finder_wa_template', text);
-            closeTemplateModal();
-            Swal.fire({
-                icon: 'success',
-                title: 'Tersimpan',
-                text: 'Template WhatsApp berhasil diperbarui!',
-                timer: 1500,
-                showConfirmButton: false,
-                customClass: { popup: 'rounded-2xl' }
-            });
-        }
-
-        function resetWaTemplate() {
-            Swal.fire({
-                title: 'Reset Template?',
-                text: 'Kembalikan template WhatsApp ke kalimat default?',
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Reset',
-                cancelButtonText: 'Batal',
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#64748b',
-                customClass: {
-                    popup: 'rounded-2xl',
-                    confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5',
-                    cancelButton: 'rounded-xl font-bold text-xs px-4 py-2.5'
-                }
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    activeWaTemplate = defaultWaPitch;
-                    document.getElementById('waTemplateText').value = defaultWaPitch;
-                    localStorage.setItem('biz_finder_wa_template', defaultWaPitch);
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil Reset',
-                        timer: 1200,
-                        showConfirmButton: false,
-                        customClass: { popup: 'rounded-2xl' }
-                    });
-                }
-            });
-        }
-
-        function showLoading(isLoading) {
-            const loadingState = document.getElementById('loadingState');
-            const cardsContainer = document.getElementById('cardsContainer');
-            const tableContainer = document.getElementById('tableContainer');
-            const emptyState = document.getElementById('emptyState');
-            const searchBtn = document.getElementById('searchSubmitBtn');
-
-            if (isLoading) {
-                loadingState.classList.remove('hidden');
-                cardsContainer.classList.add('hidden');
-                tableContainer.classList.add('hidden');
-                emptyState.classList.add('hidden');
-                if (searchBtn) {
-                    searchBtn.disabled = true;
-                    searchBtn.classList.add('opacity-70');
-                }
-            } else {
-                loadingState.classList.add('hidden');
-                if (searchBtn) {
-                    searchBtn.disabled = false;
-                    searchBtn.classList.remove('opacity-70');
-                }
-            }
-        }
-
-        function cleanPhoneNumber(phone) {
-            if (!phone) return '';
-            return phone.replace(/[^0-9]/g, '');
-        }
-
-        function capitalize(str) {
-            if (!str) return '';
-            return str.charAt(0).toUpperCase() + str.slice(1);
-        }
-
-        function escapeHtml(str) {
-            if (str === null || str === undefined || str === '') return '';
-            return String(str)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        // encodeURIComponent yang juga meng-encode tanda petik satu (') agar
-        // nama seperti "D'Cost" tidak merusak atribut onclick.
-        function safeEnc(str) {
-            return encodeURIComponent(String(str ?? '')).replace(/'/g, '%27');
-        }
-    </script>
+    <div class="stats" id="st"></div>
+    <div class="tw"><table>
+      <thead><tr><th>#</th><th>nama</th><th>kategori</th><th>alamat</th><th>telepon</th><th>web</th><th>aksi</th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table></div>
+    <div class="empty" id="em"><span class="ps cur">menunggu perintah</span></div>
+  </div>
+</div>
+
+<div class="win">
+  <div class="bar"><i></i><i></i><i></i><b>pitch.conf</b></div>
+  <div class="body">
+    <details>
+      <summary>edit template pesan WhatsApp ({nama_bisnis}, {kota})</summary>
+      <textarea id="wa" aria-label="Template WhatsApp"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px"><button type="button" id="waS">simpan</button><button type="button" id="waR">reset</button></div>
+    </details>
+  </div>
+</div>
+
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const DEF_WA=`Halo Kak, salam kenal! Saya perhatikan bisnis {nama_bisnis} di {kota} ulasan & layanannya sangat populer.\n\nNamun di internet belum terdapat Website Resmi untuk pendaftaran/katalog online.\n\nSaya freelancer web developer profesional. Saya sedang ada promo paket website UMKM lengkap dengan domain & desain elegan agar usaha Kakak makin dipercaya pelanggan Google.\n\nBoleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
+const store={
+  get(k){try{return localStorage.getItem(k)}catch{return null}},
+  set(k,v){try{localStorage.setItem(k,v)}catch{}}
+};
+let cur=[],saved=[],tab='s',waTpl=store.get('biz_finder_wa_template')||DEF_WA;
+try{saved=JSON.parse(store.get('biz_finder_saved_leads')||'[]');if(!Array.isArray(saved))saved=[]}catch{saved=[]}
+$('wa').value=waTpl;$('sc').textContent=saved.length;
+
+$('cat').onchange=e=>$('cc').classList.toggle('hide',e.target.value!=='custom');
+
+/* ---------- efek "hacking" ---------- */
+let rainT=null;
+function startRain(){
+  const c=$('rain'),x=c.getContext('2d');
+  c.width=c.clientWidth;c.height=c.clientHeight;
+  const n=Math.floor(c.width/12),y=Array.from({length:n},()=>Math.random()*-30),ch='01abcdef{}<>/$#%&*=+;:[]ABCDEF';
+  clearInterval(rainT);
+  rainT=setInterval(()=>{
+    x.fillStyle='rgba(7,18,9,.14)';x.fillRect(0,0,c.width,c.height);
+    x.fillStyle='#3dff7a';x.font='12px monospace';
+    y.forEach((v,i)=>{x.fillText(ch[Math.random()*ch.length|0],i*12,v*12);y[i]=(v*12>c.height&&Math.random()>.95)?0:v+1});
+  },55);
+}
+const stopRain=()=>clearInterval(rainT);
+const hex=n=>Array.from({length:n},()=>(Math.random()*256|0).toString(16).padStart(2,'0')).join(' ');
+async function log(t,cls=''){
+  const d=document.createElement('div');d.className=cls;$('log').appendChild(d);
+  for(let i=0;i<t.length;i+=4){d.textContent=t.slice(0,i+4);await sleep(6)}
+  d.textContent=t;$('log').scrollTop=1e9;return d;
+}
+async function anim(city,cat,isDone){
+  const intro=[
+    ['$ ./bizfinder --lokasi "'+city+'" --kategori '+cat,'warn'],
+    ['[*] memuat modul scanner v1.1 ............ ok','dim'],
+    ['[*] resolving nominatim.openstreetmap.org ...','dim'],
+    ['[*] membuka tunnel ke overpass-api.de:443 ..','dim'],
+    ['[*] menyusun query bounding box ...........','dim'],
+    ['[*] mengirim query, menunggu respons ......','dim']
+  ];
+  for(const [t,c] of intro){await log(t,c);await sleep(60)}
+  let i=0;
+  while(!isDone()){
+    const off=(Math.random()*0xffffff|0).toString(16).padStart(6,'0');
+    await log('0x'+off+'  '+hex(14)+'  '+(i++%4===0?'[recv]':'')); await sleep(40);
+  }
+}
+function setProg(p,fast){const b=$('prog');b.style.transition=fast?'width .3s':'width 14s cubic-bezier(.1,.7,.3,1)';b.style.width=p+'%'}
+
+/* ---------- pencarian ---------- */
+$('f').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const city=$('city').value.trim();
+  let cat=$('cat').value;
+  if(cat==='custom'){cat=$('cust').value.trim().toLowerCase();}
+  if(!city||!cat){alert(!city?'Lokasi belum diisi.':'Kategori custom belum diisi.');return}
+  $('hack').classList.remove('hide');$('log').textContent='';$('go').disabled=true;
+  $('hacktitle').textContent='proses pemindaian';
+  startRain();setProg(0,true);void $('prog').offsetWidth;setProg(92,false);
+  if(location.protocol==='file:'){
+    stopRain();$('go').disabled=false;
+    await log('[!] gagal: halaman dibuka lewat file://. Buka lewat URL Vercel atau jalankan "vercel dev".','err');return;
+  }
+  let done=false;
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),45000);
+  const req=fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},signal:ctl.signal,
+    body:JSON.stringify({city,category:cat,websiteFilter:$('wf').value})})
+    .then(async r=>{
+      let p;try{p=await r.json()}catch{
+        throw new Error(r.status===404?'Endpoint /api/search tidak ditemukan (HTTP 404). Pastikan file ada di api/search.js lalu deploy ulang.':
+          r.status===504?'Server kehabisan waktu (HTTP 504). Coba lokasi/kategori lebih spesifik.':
+          'Fungsi server error (HTTP '+r.status+'). Cek Vercel > Logs.');
+      }
+      if(!r.ok||!p.ok){const er=new Error(p&&p.error||'HTTP '+r.status);er.details=(p&&p.details)||[];er.code=p&&p.code;throw er}
+      return p;
+    }).finally(()=>{done=true;clearTimeout(to)});
+  const a=anim(city,cat,()=>done);
+  const res=await req.then(v=>({v}),er=>({er}));
+  await a;stopRain();setProg(100,true);
+  $('go').disabled=false;
+  if(res.er){
+    const er=res.er;
+    const m=er.name==='AbortError'?'permintaan lebih dari 45 detik':er.message;
+    $('hacktitle').textContent='gagal';
+    await log('[!] ERROR: '+m,'err');
+    for(const d of (er.details||[]).slice(0,6))await log('    - '+d,'mut');
+    await log(er.code==='LOCATION_NOT_FOUND'?'[i] coba tulis lebih lengkap, mis. "Mojosari, Mojokerto".':'[i] coba lagi sebentar, atau jalankan --demo untuk melihat tampilan.','warn');
+    return;
+  }
+  cur=Array.isArray(res.v.results)?res.v.results:[];
+  tab='s';
+  $('hacktitle').textContent='selesai';
+  await log('[+] respons diterima, parsing data ...... ok','dim');
+  await log('[+] '+cur.length+' target ditemukan di '+(res.v.location&&res.v.location.displayName||city),'');
+  if(!cur.length)await log('[i] 0 hasil. Data OSM untuk UMKM masih terbatas: coba "Semua bisnis" atau lokasi lebih besar.','warn');
+  render();
+  $('tb').closest('.win').scrollIntoView({behavior:'smooth',block:'start'});
+});
+
+/* ---------- tampilan hasil ---------- */
+const isSaved=b=>saved.some(s=>s.name===b.name&&s.address===b.address);
+function list(){
+  const src=tab==='s'?cur:saved,q=$('q').value.trim().toLowerCase();
+  return q?src.filter(b=>(b.name+' '+b.address+' '+b.category).toLowerCase().includes(q)):src;
+}
+function render(){
+  const L=list(),src=tab==='s'?cur:saved;
+  $('tS').classList.toggle('on',tab==='s');$('tV').classList.toggle('on',tab==='v');
+  $('sc').textContent=saved.length;
+  const noWeb=src.filter(b=>!b.website).length,tel=src.filter(b=>b.phone).length;
+  $('st').innerHTML='total <b>'+src.length+'</b> | tanpa web <b>'+noWeb+'</b> | ada telepon <b>'+tel+'</b> | estimasi peluang <b>Rp '+(noWeb*1500000).toLocaleString('id-ID')+'</b>';
+  $('em').classList.toggle('hide',L.length>0);
+  $('em').innerHTML=src.length?'<span class="warn">tidak ada baris yang cocok</span>':(tab==='s'?'<span class="ps cur">menunggu perintah</span>':'<span class="mut">belum ada prospek tersimpan</span>');
+  $('tb').innerHTML=L.map((b,i)=>{
+    const web=/^https?:\/\//i.test(b.website||'')?'<a class="w" target="_blank" rel="noopener" href="'+esc(b.website)+'">ada</a>':'<span class="warn">TANPA_WEB</span>';
+    const maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(b.name+' '+b.address);
+    return '<tr><td class="mut">'+(i+1)+'</td><td>'+esc(b.name)+'</td><td class="mut">'+esc(b.category||'UMKM')+'</td><td>'+esc(b.address)+'</td><td>'+(esc(b.phone)||'<span class="mut">-</span>')+'</td><td>'+web+'</td><td style="white-space:nowrap">'+
+      (b.phone?'<button data-a="wa" data-i="'+i+'">wa</button> ':'')+
+      '<a class="btn" target="_blank" rel="noopener" href="'+esc(maps)+'">maps</a> '+
+      '<button data-a="sv" data-i="'+i+'" title="simpan">'+(isSaved(b)?'[x]':'[ ]')+'</button></td></tr>';
+  }).join('');
+}
+$('tb').addEventListener('click',e=>{
+  const t=e.target.closest('button[data-a]');if(!t)return;
+  const b=list()[+t.dataset.i];if(!b)return;
+  if(t.dataset.a==='wa'){
+    let p=String(b.phone).replace(/\D/g,'');if(p.startsWith('0'))p='62'+p.slice(1);
+    const msg=waTpl.replace(/{nama_bisnis}/g,b.name).replace(/{kota}/g,b.city||'Anda');
+    window.open('https://wa.me/'+p+'?text='+encodeURIComponent(msg),'_blank','noopener');
+  }else{
+    const k=saved.findIndex(s=>s.name===b.name&&s.address===b.address);
+    if(k>=0)saved.splice(k,1);else saved.push(b);
+    store.set('biz_finder_saved_leads',JSON.stringify(saved));render();
+  }
+});
+$('tS').onclick=()=>{tab='s';render()};
+$('tV').onclick=()=>{tab='v';render()};
+$('q').oninput=render;
+
+$('ex').onclick=()=>{
+  const L=list();if(!L.length){alert('Tidak ada data untuk diekspor.');return}
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const rows=[['Nama','Kategori','Alamat','Kota','Telepon','Website','Status']].concat(
+    L.map(b=>[b.name,b.category,b.address,b.city,b.phone,b.website,b.website?'Punya Website':'Tanpa Website (Prospek)']));
+  const blob=new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='bizfinder_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+};
+
+$('waS').onclick=()=>{waTpl=$('wa').value.trim()||DEF_WA;store.set('biz_finder_wa_template',waTpl);alert('Template tersimpan.')};
+$('waR').onclick=()=>{waTpl=DEF_WA;$('wa').value=DEF_WA;store.set('biz_finder_wa_template',DEF_WA)};
+
+/* ---------- data demo ---------- */
+$('demo').onclick=async()=>{
+  const city=$('city').value.trim()||'Surabaya';
+  $('hack').classList.remove('hide');$('log').textContent='';$('hacktitle').textContent='mode demo';
+  startRain();setProg(0,true);void $('prog').offsetWidth;setProg(100,false);
+  await log('$ ./bizfinder --demo','warn');await log('[*] memuat data simulasi (bukan data asli) ...','dim');
+  let n=0;while(n++<8){await log('0x'+(Math.random()*0xffffff|0).toString(16).padStart(6,'0')+'  '+hex(14));await sleep(60)}
+  stopRain();
+  const mk=(n,c,s,p,w)=>({id:'demo_'+n,name:n,category:c,address:s+', '+city,city,phone:p,website:w});
+  const all=[mk('Ayam Bakar Pak Joko','Restoran','Jl. Raya Darmo 42','081234567890',''),
+    mk('Barbershop Premiere','Barbershop','Jl. Pemuda 15','085711223344',''),
+    mk('Bengkel Motor Jaya Abadi','Bengkel','Jl. Ahmad Yani 88','081900887766',''),
+    mk('Klinik Gigi Smile Care','Klinik','Jl. Diponegoro 101','082199887711','https://smilecare-demo.com'),
+    mk('Toko Fashion Hits','Butik','Jl. Basuki Rahmat 24','081344556677',''),
+    mk('Laundry Express','Laundry','Jl. Mawar 7','','')];
+  const f=$('wf').value;
+  cur=f==='no_website'?all.filter(b=>!b.website):f==='has_website'?all.filter(b=>b.website):all;
+  tab='s';await log('[+] '+cur.length+' target simulasi dimuat','');render();
+};
+render();
+</script>
 </body>
 </html>
