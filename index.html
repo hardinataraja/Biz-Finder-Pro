@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <script>
         tailwind.config = {
@@ -425,6 +427,23 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
             }
         }
 
+        // Helper Fetch dengan Strict Timeout (Mencegah Muter-Muter Berkelanjutan)
+        async function fetchWithTimeout(url, options = {}, timeoutMs = 7000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+                clearTimeout(timer);
+                return response;
+            } catch (err) {
+                clearTimeout(timer);
+                throw err;
+            }
+        }
+
         async function handleSearch(e) {
             e.preventDefault();
             const city = document.getElementById('cityInput').value.trim();
@@ -433,9 +452,302 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
             const websiteFilter = document.getElementById('websiteFilter').value;
 
             if (!city) {
-                alert('Silakan masukkan nama kota atau lokasi.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Kota Belum Diisi',
+                    text: 'Silakan masukkan nama kota atau lokasi bisnis.',
+                    confirmButtonColor: '#10b981',
+                    customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
+                });
                 return;
             }
+
+            let categoryTag = categorySelect;
+            if (categorySelect === 'custom') {
+                if (!customCategory) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Kategori Belum Diisi',
+                        text: 'Silakan tulis kategori custom.',
+                        confirmButtonColor: '#10b981',
+                        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
+                    });
+                    return;
+                }
+                categoryTag = customCategory.toLowerCase();
+            }
+
+            showLoading(true);
+
+            let lastErrorReason = '';
+
+            try {
+                // 1. Fetch Geocode Area Bounds dari Nominatim API
+                const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&accept-language=id&q=${encodeURIComponent(city)}`;
+                const geoRes = await fetchWithTimeout(geoUrl, {}, 6000);
+                
+                if (!geoRes.ok) {
+                    throw new Error(`Nominatim error HTTP ${geoRes.status}`);
+                }
+                
+                const geoData = await geoRes.json();
+
+                if (!geoData || geoData.length === 0) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Lokasi Tidak Ditemukan',
+                        text: 'Lokasi kota tidak ditemukan. Mohon periksa kembali ejaan nama kota.',
+                        confirmButtonColor: '#10b981',
+                        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
+                    });
+                    return;
+                }
+
+                const location = geoData[0];
+                const lat = parseFloat(location.lat);
+                const lon = parseFloat(location.lon);
+
+                // Bounding Box (~8km area radius)
+                const bbox = `${lat - 0.08},${lon - 0.08},${lat + 0.08},${lon + 0.08}`;
+                
+                let amenityFilter = '';
+                if (categoryTag === 'restaurant') {
+                    amenityFilter = `["amenity"~"restaurant|cafe|fast_food|food_court"]`;
+                } else if (categoryTag === 'hairdresser') {
+                    amenityFilter = `["shop"~"hairdresser|beauty"]`;
+                } else if (categoryTag === 'car_repair') {
+                    amenityFilter = `["shop"~"car_repair|motorcycle_repair"]`;
+                } else if (categoryTag === 'clothes') {
+                    amenityFilter = `["shop"~"clothes|boutique|fashion"]`;
+                } else if (categoryTag === 'clinic') {
+                    amenityFilter = `["amenity"~"clinic|dentist|doctors|pharmacy"]`;
+                } else if (categoryTag === 'hotel') {
+                    amenityFilter = `["tourism"~"hotel|guest_house|motel"]`;
+                } else if (categoryTag === 'laundry') {
+                    amenityFilter = `["shop"~"laundry"]`;
+                } else if (categoryTag !== 'all') {
+                    amenityFilter = `["amenity"="${categoryTag}"]`;
+                } else {
+                    amenityFilter = `["name"]`;
+                }
+
+                const overpassQuery = `[out:json][timeout:15];(node${amenityFilter}(${bbox});way${amenityFilter}(${bbox}););out body 50;`;
+
+                // Mirror Endpoints Overpass API
+                const overpassEndpoints = [
+                    'https://overpass-api.de/api/interpreter',
+                    'https://overpass.kumi.systems/api/interpreter',
+                    'https://overpass.private.coffee/api/interpreter'
+                ];
+
+                let data = null;
+                let fetchSuccess = false;
+
+                for (const endpoint of overpassEndpoints) {
+                    try {
+                        // Gunakan GET Method dengan URL Query untuk Menghindari Preflight CORS OPTIONS
+                        const getUrl = `${endpoint}?data=${encodeURIComponent(overpassQuery)}`;
+                        const response = await fetchWithTimeout(getUrl, { method: 'GET' }, 7000);
+
+                        if (response.ok) {
+                            data = await response.json();
+                            fetchSuccess = true;
+                            break;
+                        } else {
+                            lastErrorReason = `HTTP ${response.status} (${response.statusText})`;
+                        }
+                    } catch (err) {
+                        lastErrorReason = err.name === 'AbortError' ? 'Server Timeout (7 detik)' : (err.message || 'CORS / Blocked Request');
+                        console.warn(`Endpoint ${endpoint} gagal: ${lastErrorReason}`);
+                    }
+                }
+
+                if (!fetchSuccess || !data) {
+                    throw new Error(lastErrorReason || 'Gagal terhubung ke semua server Overpass OSM.');
+                }
+                
+                let rawList = data.elements || [];
+                let parsedBusinesses = [];
+
+                rawList.forEach((item, index) => {
+                    const tags = item.tags || {};
+                    const name = tags.name || tags['name:id'] || tags['brand'];
+                    
+                    if (!name) return;
+
+                    const phone = tags.phone || tags['contact:phone'] || tags['contact:whatsapp'] || tags.mobile || tags['contact:mobile'] || '';
+                    const website = tags.website || tags['contact:website'] || tags.url || '';
+                    const street = tags['addr:street'] || '';
+                    const housenumber = tags['addr:housenumber'] || '';
+                    const suburb = tags['addr:suburb'] || tags['addr:district'] || '';
+                    
+                    let address = [street, housenumber, suburb, city].filter(Boolean).join(', ');
+                    if (!address) {
+                        address = `${city} (Peta Area)`;
+                    }
+
+                    const categoryName = tags.amenity || tags.shop || tags.tourism || categorySelect;
+
+                    parsedBusinesses.push({
+                        id: 'osm_' + item.id + '_' + index,
+                        name: name,
+                        category: capitalize(categoryName.replace('_', ' ')),
+                        address: address,
+                        city: city,
+                        phone: cleanPhoneNumber(phone),
+                        rawPhone: phone,
+                        website: website,
+                        lat: item.lat || lat,
+                        lon: item.lon || lon
+                    });
+                });
+
+                // Filter website
+                let filtered = parsedBusinesses;
+                if (websiteFilter === 'no_website') {
+                    filtered = parsedBusinesses.filter(b => !b.website);
+                } else if (websiteFilter === 'has_website') {
+                    filtered = parsedBusinesses.filter(b => b.website !== '');
+                }
+
+                currentResults = filtered;
+                renderResults(currentResults);
+
+                if (filtered.length === 0) {
+                    Swal.fire({
+                        icon: 'info',
+                        title: 'Tidak Ada Hasil',
+                        text: 'Tidak ada bisnis ditemukan dengan kriteria tersebut pada area ini.',
+                        confirmButtonColor: '#10b981',
+                        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
+                    });
+                }
+
+            } catch (err) {
+                console.error(err);
+                
+                // Tampilkan SweetAlert2 ketika Server Overpass Sibuk / CORS Error
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Server Overpass Sibuk / Terkena CORS',
+                    html: `
+                        <div class="text-left text-xs space-y-2 text-slate-600">
+                            <p><strong>Penyebab:</strong> <span class="text-rose-600">${escapeHtml(err.message || 'Network / CORS Error')}</span></p>
+                            <p>Server publik OpenStreetMap sedang padat atau membatasi permintaan dari domain Vercel Anda.</p>
+                            <p class="font-semibold text-slate-700">Apakah Anda ingin menampilkan Data Simulasi Demo?</p>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'Tampilkan Data Demo',
+                    cancelButtonText: 'Batal',
+                    confirmButtonColor: '#10b981',
+                    cancelButtonColor: '#64748b',
+                    customClass: {
+                        popup: 'rounded-2xl',
+                        confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5',
+                        cancelButton: 'rounded-xl font-bold text-xs px-4 py-2.5'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        generateDemoData();
+                    }
+                });
+            } finally {
+                // Selalu hentikan animasi loading agar tidak berputar terus!
+                showLoading(false);
+            }
+        }
+
+        // Helper Notification Toast Sederhana
+        function showToast(message, type = 'info') {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'bottom',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+            Toast.fire({
+                icon: type === 'warning' ? 'warning' : type === 'error' ? 'error' : 'success',
+                title: message
+            });
+        }
+
+        function generateDemoData() {
+            showLoading(true);
+            const city = document.getElementById('cityInput').value || 'Surabaya';
+            
+            setTimeout(() => {
+                const demoList = [
+                    {
+                        id: 'demo_1',
+                        name: 'Ayam Bakar Pak Joko Local',
+                        category: 'Restoran / Kuliner',
+                        address: 'Jl. Raya Darmo No. 42, ' + city,
+                        city: city,
+                        phone: '081234567890',
+                        website: '',
+                    },
+                    {
+                        id: 'demo_2',
+                        name: 'Barbershop Premiere Gentlemans',
+                        category: 'Salon & Barbershop',
+                        address: 'Jl. Pemuda No. 15, ' + city,
+                        city: city,
+                        phone: '085711223344',
+                        website: '',
+                    },
+                    {
+                        id: 'demo_3',
+                        name: 'Bengkel Motor Jaya Abadi',
+                        category: 'Bengkel & Otomotif',
+                        address: 'Jl. Ahmad Yani No. 88, ' + city,
+                        city: city,
+                        phone: '081900887766',
+                        website: '',
+                    },
+                    {
+                        id: 'demo_4',
+                        name: 'Klinik Gigi Smile Care',
+                        category: 'Klinik Kesehatan',
+                        address: 'Jl. Diponegoro No. 101, ' + city,
+                        city: city,
+                        phone: '082199887711',
+                        website: 'https://smilecare-demo.com',
+                    },
+                    {
+                        id: 'demo_5',
+                        name: 'Toko Pakaian Fashion Hits',
+                        category: 'Boutique / Ritel',
+                        address: 'Jl. Basuki Rahmat No. 24, ' + city,
+                        city: city,
+                        phone: '081344556677',
+                        website: '',
+                    },
+                    {
+                        id: 'demo_6',
+                        name: 'Laundry Express Clean & Fresh',
+                        category: 'Laundry / Jasa',
+                        address: 'Jl. Mawar No. 7, ' + city,
+                        city: city,
+                        phone: '',
+                        website: '',
+                    }
+                ];
+
+                const websiteFilter = document.getElementById('websiteFilter').value;
+                let filtered = demoList;
+                if (websiteFilter === 'no_website') {
+                    filtered = demoList.filter(b => !b.website);
+                } else if (websiteFilter === 'has_website') {
+                    filtered = demoList.filter(b => b.website !== '');
+                }
+
+                currentResults = filtered;
+                renderResults(currentResults);
+                showLoading(false);
+            }, 400);
+        }
 
             let categoryTag = categorySelect;
             if (categorySelect === 'custom') {
@@ -988,7 +1300,13 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
             const activeList = (currentTab === 'search') ? currentResults : savedLeads;
 
             if (!activeList || activeList.length === 0) {
-                alert('Tidak ada data untuk diekspor.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Data Kosong',
+                    text: 'Tidak ada data bisnis untuk diekspor.',
+                    confirmButtonColor: '#10b981',
+                    customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
+                });
                 return;
             }
 
@@ -1029,21 +1347,57 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
         function saveWaTemplate() {
             const text = document.getElementById('waTemplateText').value.trim();
             if (!text) {
-                alert('Pesan template tidak boleh kosong.');
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Pesan Kosong',
+                    text: 'Pesan template tidak boleh kosong.',
+                    confirmButtonColor: '#10b981',
+                    customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
+                });
                 return;
             }
             activeWaTemplate = text;
             localStorage.setItem('biz_finder_wa_template', text);
             closeTemplateModal();
-            alert('Template WhatsApp berhasil disimpan!');
+            Swal.fire({
+                icon: 'success',
+                title: 'Tersimpan',
+                text: 'Template WhatsApp berhasil diperbarui!',
+                timer: 1500,
+                showConfirmButton: false,
+                customClass: { popup: 'rounded-2xl' }
+            });
         }
 
         function resetWaTemplate() {
-            if (confirm('Kembalikan pesan template ke default?')) {
-                activeWaTemplate = defaultWaPitch;
-                document.getElementById('waTemplateText').value = defaultWaPitch;
-                localStorage.setItem('biz_finder_wa_template', defaultWaPitch);
-            }
+            Swal.fire({
+                title: 'Reset Template?',
+                text: 'Kembalikan template WhatsApp ke kalimat default?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, Reset',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: '#ef4444',
+                cancelButtonColor: '#64748b',
+                customClass: {
+                    popup: 'rounded-2xl',
+                    confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5',
+                    cancelButton: 'rounded-xl font-bold text-xs px-4 py-2.5'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    activeWaTemplate = defaultWaPitch;
+                    document.getElementById('waTemplateText').value = defaultWaPitch;
+                    localStorage.setItem('biz_finder_wa_template', defaultWaPitch);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Berhasil Reset',
+                        timer: 1200,
+                        showConfirmButton: false,
+                        customClass: { popup: 'rounded-2xl' }
+                    });
+                }
+            });
         }
 
         function showLoading(isLoading) {
