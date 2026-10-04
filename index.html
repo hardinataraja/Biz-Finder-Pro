@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-900">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Google Business Lead Finder - Mobile Friendly Prospeksi</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Smooth scrolling and touch callouts */
+        html, body {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 999px;
+        }
+        
+        /* Mobile safe area padding for bottom bar */
+        .pb-safe {
+            padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-800 font-sans min-h-full flex flex-col antialiased">
+
+    <!-- TOP NAVIGATION HEADER -->
+    <header class="bg-slate-900/95 backdrop-blur-md text-white border-b border-slate-800 sticky top-0 z-30 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center text-slate-900 font-extrabold text-xl shadow-lg shadow-emerald-500/20">
+                    <i class="fa-solid fa-bolt text-white"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base sm:text-lg leading-none flex items-center gap-2">
+                        BizFinder <span class="text-emerald-400">Pro</span>
+                        <span class="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">GRATIS</span>
+                    </h1>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Riset Prospek Web UMKM</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button onclick="openTemplateModal()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 text-xs font-semibold transition flex items-center gap-1.5 border border-slate-700">
+                    <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                    <span class="hidden sm:inline">Template Pitch</span>
+                    <span class="sm:hidden text-[11px]">Template</span>
+                </button>
+                
+                <button onclick="exportToCSV()" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-md shadow-emerald-900/30">
+                    <i class="fa-solid fa-file-excel"></i>
+                    <span class="hidden sm:inline">Ekspor CSV</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-1 bg-slate-100 pb-safe">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
+
+            <!-- MOBILE HERO / INFO BOX -->
+            <div class="bg-gradient-to-br from-slate-900 via-slate-800 to-indigo-950 text-white p-4 sm:p-6 rounded-2xl sm:rounded-3xl shadow-xl relative overflow-hidden border border-slate-700/80">
+                <div class="relative z-10 max-w-2xl">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[11px] font-semibold border border-emerald-500/30">
+                            <i class="fa-solid fa-radar mr-1.5 text-emerald-400 animate-pulse"></i> Radar Prospek Klien
+                        </span>
+                    </div>
+                    <h2 class="text-lg sm:text-2xl font-extrabold tracking-tight text-white mb-1.5">
+                        Cari UMKM Lokal Tanpa Website
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                        Temukan toko, restoran, & jasa lokal yang <strong class="text-rose-400 font-semibold underline underline-offset-2">belum punya website</strong>. Hubungi pemiliknya langsung lewat WhatsApp untuk menawarkan jasa Anda!
+                    </p>
+                </div>
+                <i class="fa-solid fa-store absolute -right-4 -bottom-6 text-8xl text-slate-800/40 pointer-events-none"></i>
+            </div>
+
+            <!-- SEARCH FORM CARD -->
+            <section class="bg-white p-4 sm:p-5 rounded-2xl sm:rounded-3xl shadow-sm border border-slate-200/80 space-y-4">
+                <form id="searchForm" onsubmit="handleSearch(event)" class="space-y-3.5">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4">
+                        
+                        <!-- Input Kota / Lokasi -->
+                        <div class="md:col-span-5">
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                <i class="fa-solid fa-location-dot text-rose-500 mr-1"></i> Kota / Lokasi Bisnis
+                            </label>
+                            <div class="relative">
+                                <input type="text" id="cityInput" placeholder="Contoh: Surabaya, Mojosari, Malang..." required
+                                    class="w-full h-11 pl-10 pr-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                                <i class="fa-solid fa-city absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                            </div>
+                        </div>
+
+                        <!-- Select Kategori Bisnis -->
+                        <div class="md:col-span-4">
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                <i class="fa-solid fa-store text-emerald-500 mr-1"></i> Jenis Kategori
+                            </label>
+                            <div class="relative">
+                                <select id="categorySelect" onchange="toggleCustomCategory(this.value)"
+                                    class="w-full h-11 pl-10 pr-8 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition appearance-none cursor-pointer">
+                                    <option value="all">🔍 Semua Jenis Bisnis UMKM</option>
+                                    <option value="restaurant">🍽️ Kuliner / Cafe / Restoran</option>
+                                    <option value="hairdresser">💈 Salon & Barbershop</option>
+                                    <option value="car_repair">🔧 Bengkel & Otomotif</option>
+                                    <option value="clothes">👗 Toko Baju & Boutique</option>
+                                    <option value="clinic">🏥 Klinik & Praktik Medis</option>
+                                    <option value="hotel">🏨 Hotel & Penginapan</option>
+                                    <option value="laundry">🧺 Laundry & Services</option>
+                                    <option value="custom">✏️ Tulis Kategori Sendiri</option>
+                                </select>
+                                <i class="fa-solid fa-layer-group absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                                <i class="fa-solid fa-chevron-down absolute right-3.5 top-4 text-slate-400 text-xs pointer-events-none"></i>
+                            </div>
+                        </div>
+
+                        <!-- Custom Category Input (Hidden default) -->
+                        <div id="customCategoryContainer" class="hidden md:col-span-3">
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                Kategori Custom (Tag OSM)
+                            </label>
+                            <input type="text" id="customCategoryInput" placeholder="bakery, gym, dentist..."
+                                class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition">
+                        </div>
+
+                        <!-- Filter Website -->
+                        <div class="md:col-span-3">
+                            <label class="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                <i class="fa-solid fa-filter text-blue-500 mr-1"></i> Filter Status Web
+                            </label>
+                            <select id="websiteFilter"
+                                class="w-full h-11 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition appearance-none cursor-pointer">
+                                <option value="no_website">🔥 Khusus TANPA Website</option>
+                                <option value="all">Semua Bisnis (Semua)</option>
+                                <option value="has_website">Hanya Yang Punya Website</option>
+                            </select>
+                        </div>
+
+                    </div>
+
+                    <!-- Submit Buttons Bar -->
+                    <div class="flex flex-col sm:flex-row items-center justify-between gap-2.5 pt-2 border-t border-slate-100">
+                        <button type="button" onclick="generateDemoData()" 
+                            class="w-full sm:w-auto h-10 px-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 active:scale-95 text-slate-700 text-xs font-bold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                            <span>Coba Data Demo</span>
+                        </button>
+
+                        <button type="submit" id="searchSubmitBtn" 
+                            class="w-full sm:w-auto h-11 sm:h-10 px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-sm transition shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                            <span>Cari Bisnis Sekarang</span>
+                        </button>
+                    </div>
+
+                </form>
+            </section>
+
+            <!-- STATS DASHBOARD BAR -->
+            <div id="statsSection" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3">
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg shrink-0">
+                        <i class="fa-solid fa-building-user"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider truncate">Total Bisnis</p>
+                        <p id="statTotal" class="text-lg sm:text-xl font-bold text-slate-800 leading-none mt-0.5">0</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg shrink-0">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-extrabold text-rose-400 uppercase tracking-wider truncate">Tanpa Website</p>
+                        <p id="statNoWeb" class="text-lg sm:text-xl font-bold text-rose-600 leading-none mt-0.5">0</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg shrink-0">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-extrabold text-emerald-500 uppercase tracking-wider truncate">Ada WA/Telp</p>
+                        <p id="statWithPhone" class="text-lg sm:text-xl font-bold text-emerald-600 leading-none mt-0.5">0</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-3.5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg shrink-0">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-[10px] font-extrabold text-amber-500 uppercase tracking-wider truncate">Estimasi Jasa</p>
+                        <p id="statOpportunity" class="text-sm sm:text-base font-bold text-amber-600 leading-none mt-0.5 truncate">Rp 0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESULTS CONTAINER SECTION -->
+            <div class="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+                
+                <!-- TOP BAR CONTROLS & FILTER -->
+                <div class="p-3.5 sm:p-4 border-b border-slate-200/80 bg-slate-50/70 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    
+                    <!-- Search inside table/cards -->
+                    <div class="relative w-full sm:w-64">
+                        <input type="text" id="tableSearchInput" oninput="filterTableByText(this.value)" placeholder="Cari nama bisnis / alamat..."
+                            class="w-full h-9 pl-8 pr-3 bg-white border border-slate-200 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+                    </div>
+
+                    <!-- Mobile / Desktop View Mode Switcher -->
+                    <div class="flex items-center justify-between w-full sm:w-auto gap-2">
+                        <span id="resultSummaryCount" class="text-xs text-slate-500 font-semibold">
+                            Menampilkan <strong id="visibleCount" class="text-slate-800">0</strong> bisnis
+                        </span>
+
+                        <div class="flex items-center bg-slate-200/80 p-0.5 rounded-xl text-xs">
+                            <button id="viewCardBtn" onclick="toggleDisplayMode('card')" class="px-2.5 py-1 rounded-lg font-bold transition bg-white text-slate-800 shadow-sm">
+                                <i class="fa-solid fa-grip-vertical"></i> Card
+                            </button>
+                            <button id="viewTableBtn" onclick="toggleDisplayMode('table')" class="px-2.5 py-1 rounded-lg font-bold text-slate-500 hover:text-slate-800 transition">
+                                <i class="fa-solid fa-table-cells"></i> Tabel
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- LOADING STATE -->
+                <div id="loadingState" class="hidden py-16 text-center px-4">
+                    <div class="inline-block animate-spin rounded-full h-10 w-10 border-4 border-emerald-500 border-t-transparent mb-3"></div>
+                    <p class="font-bold text-slate-800 text-sm">Mencari Bisnis Real-Time...</p>
+                    <p class="text-xs text-slate-500 mt-1 max-w-xs mx-auto">Memindai database peta OpenStreetMap untuk area lokasi pilihan Anda.</p>
+                </div>
+
+                <!-- EMPTY STATE -->
+                <div id="emptyState" class="py-14 text-center px-4">
+                    <div class="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto text-slate-400 text-xl mb-3">
+                        <i class="fa-solid fa-store-slash"></i>
+                    </div>
+                    <h3 class="font-bold text-slate-800 text-sm mb-1">Belum Ada Bisnis Ditampilkan</h3>
+                    <p class="text-xs text-slate-500 max-w-xs mx-auto mb-4">Ketik Kota & Pilih Kategori di atas, lalu tekan tombol "Cari Bisnis Sekarang".</p>
+                    <button onclick="generateDemoData()" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 active:scale-95 transition">
+                        Tampilkan Data Simulasi
+                    </button>
+                </div>
+
+                <!-- MOBILE CARD VIEW GRID (Primary for Mobile) -->
+                <div id="cardsContainer" class="hidden p-3.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <!-- Dynamic Mobile Cards Inserted Here -->
+                </div>
+
+                <!-- DESKTOP TABLE VIEW CONTAINER -->
+                <div id="tableContainer" class="hidden overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100/70 border-b border-slate-200 text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">
+                                <th class="py-3 px-4 w-10">#</th>
+                                <th class="py-3 px-4">Nama Bisnis</th>
+                                <th class="py-3 px-4">Kategori</th>
+                                <th class="py-3 px-4">Alamat Lengkap</th>
+                                <th class="py-3 px-4">Kontak / WA</th>
+                                <th class="py-3 px-4 text-center">Status Web</th>
+                                <th class="py-3 px-4 text-center">Aksi Prospeksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="businessTableBody" class="divide-y divide-slate-100 text-xs text-slate-700">
+                            <!-- Dynamic Table Rows Inserted Here -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <!-- STICKY MOBILE BOTTOM NAVIGATION BAR -->
+    <nav class="fixed bottom-0 inset-x-0 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 z-40 sm:hidden">
+        <div class="grid grid-cols-2 h-14">
+            <button id="navTabSearch" onclick="switchTab('search')" 
+                class="flex flex-col items-center justify-center text-emerald-400 font-bold transition">
+                <i class="fa-solid fa-magnifying-glass text-base"></i>
+                <span class="text-[10px] mt-0.5">Hasil Prospek</span>
+            </button>
+
+            <button id="navTabSaved" onclick="switchTab('saved')" 
+                class="flex flex-col items-center justify-center text-slate-400 font-medium transition relative">
+                <div class="relative">
+                    <i class="fa-solid fa-bookmark text-base"></i>
+                    <span id="savedCountBadge" class="absolute -top-1 -right-2.5 bg-amber-500 text-slate-950 font-black text-[9px] w-4 h-4 rounded-full flex items-center justify-center">0</span>
+                </div>
+                <span class="text-[10px] mt-0.5">Tersimpan</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- MODAL: TEMPLATE PITCH WHATSAPP -->
+    <div id="templateModal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                <h3 class="font-extrabold text-base text-slate-800 flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-emerald-600 text-xl"></i>
+                    Template Chat WA Pitch
+                </h3>
+                <button onclick="closeTemplateModal()" class="w-8 h-8 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center transition">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <p class="text-xs text-slate-500">Pesan otomatis ini akan dikirim saat Anda menekan tombol <strong class="text-emerald-600 font-semibold">Chat WA</strong>.</p>
+                
+                <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 text-[11px] text-slate-600 space-y-1">
+                    <p class="font-bold text-slate-700">Variabel Otomatis:</p>
+                    <p><code class="bg-slate-200 px-1.5 py-0.5 rounded text-slate-800 font-mono">{nama_bisnis}</code> = Nama Tempat Usaha</p>
+                    <p><code class="bg-slate-200 px-1.5 py-0.5 rounded text-slate-800 font-mono">{kota}</code> = Nama Kota / Area</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Isi Pesan Penawaran:</label>
+                    <textarea id="waTemplateText" rows="6" 
+                        class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500 font-sans leading-relaxed"></textarea>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-end space-x-2 pt-2 border-t border-slate-100">
+                <button onclick="resetWaTemplate()" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100 transition">
+                    Reset Default
+                </button>
+                <button onclick="saveWaTemplate()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 transition active:scale-95">
+                    Simpan Template
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // Global States
+        let currentResults = [];
+        let savedLeads = JSON.parse(localStorage.getItem('biz_finder_saved_leads') || '[]');
+        let currentTab = 'search'; // 'search' or 'saved'
+        let displayMode = 'card'; // 'card' or 'table'
+
+        // Default WhatsApp Pitch Template
+        const defaultWaPitch = `Halo Kak, salam kenal! Saya perhatikan bisnis {nama_bisnis} di {kota} ulasan & layanannya sangat populer. 
+
+Namun di internet belum terdapat Website Resmi untuk pendaftaran/katalog online. 
+
+Saya freelancer web developer profesional. Saya sedang ada promo paket website UMKM lengkap dengan domain & desain elegan agar usaha Kakak makin dipercaya pelanggan Google.
+
+Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
+
+        let activeWaTemplate = localStorage.getItem('biz_finder_wa_template') || defaultWaPitch;
+
+        // On Page Load Initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            updateSavedCount();
+            document.getElementById('waTemplateText').value = activeWaTemplate;
+            
+            // Default display mode based on viewport width
+            if (window.innerWidth >= 768) {
+                displayMode = 'table';
+            } else {
+                displayMode = 'card';
+            }
+            updateDisplayButtons();
+        });
+
+        function toggleCustomCategory(value) {
+            const customContainer = document.getElementById('customCategoryContainer');
+            if (value === 'custom') {
+                customContainer.classList.remove('hidden');
+            } else {
+                customContainer.classList.add('hidden');
+            }
+        }
+
+        async function handleSearch(e) {
+            e.preventDefault();
+            const city = document.getElementById('cityInput').value.trim();
+            const categorySelect = document.getElementById('categorySelect').value;
+            const customCategory = document.getElementById('customCategoryInput').value.trim();
+            const websiteFilter = document.getElementById('websiteFilter').value;
+
+            if (!city) {
+                alert('Silakan masukkan nama kota atau lokasi.');
+                return;
+            }
+
+            let categoryTag = categorySelect;
+            if (categorySelect === 'custom') {
+                if (!customCategory) {
+                    alert('Silakan tulis kategori custom.');
+                    return;
+                }
+                categoryTag = customCategory.toLowerCase();
+            }
+
+            showLoading(true);
+
+            try {
+                // Fetch Geocode Area Bounds from Nominatim API
+                const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(city)}`;
+                const geoRes = await fetch(geoUrl, { headers: { 'Accept-Language': 'id' } });
+                const geoData = await geoRes.json();
+
+                if (!geoData || geoData.length === 0) {
+                    alert('Lokasi kota tidak ditemukan. Mohon periksa kembali ejaan nama kota.');
+                    showLoading(false);
+                    return;
+                }
+
+                const location = geoData[0];
+                const lat = parseFloat(location.lat);
+                const lon = parseFloat(location.lon);
+
+                // Overpass Query Bounding Box (~8km area)
+                const bbox = `${lat - 0.08},${lon - 0.08},${lat + 0.08},${lon + 0.08}`;
+                
+                let amenityFilter = '';
+                if (categoryTag === 'restaurant') {
+                    amenityFilter = `["amenity"~"restaurant|cafe|fast_food|food_court"]`;
+                } else if (categoryTag === 'hairdresser') {
+                    amenityFilter = `["shop"~"hairdresser|beauty"]`;
+                } else if (categoryTag === 'car_repair') {
+                    amenityFilter = `["shop"~"car_repair|motorcycle_repair"]`;
+                } else if (categoryTag === 'clothes') {
+                    amenityFilter = `["shop"~"clothes|boutique|fashion"]`;
+                } else if (categoryTag === 'clinic') {
+                    amenityFilter = `["amenity"~"clinic|dentist|doctors|pharmacy"]`;
+                } else if (categoryTag === 'hotel') {
+                    amenityFilter = `["tourism"~"hotel|guest_house|motel"]`;
+                } else if (categoryTag === 'laundry') {
+                    amenityFilter = `["shop"~"laundry"]`;
+                } else if (categoryTag !== 'all') {
+                    amenityFilter = `["amenity"="${categoryTag}"]`;
+                } else {
+                    amenityFilter = `["name"]`;
+                }
+
+                const overpassQuery = `
+                    [out:json][timeout:25];
+                    (
+                      node${amenityFilter}(${bbox});
+                      way${amenityFilter}(${bbox});
+                    );
+                    out body 60;
+                `;
+
+                const overpassUrl = 'https://overpass-api.de/api/interpreter';
+                const response = await fetch(overpassUrl, {
+                    method: 'POST',
+                    body: 'data=' + encodeURIComponent(overpassQuery)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Server OSM sedang padat. Silakan coba data simulasi demo.');
+                }
+
+                const data = await response.json();
+                
+                let rawList = data.elements || [];
+                let parsedBusinesses = [];
+
+                rawList.forEach((item, index) => {
+                    const tags = item.tags || {};
+                    const name = tags.name || tags['name:id'] || tags['brand'];
+                    
+                    if (!name) return; // Skip unnamed items
+
+                    const phone = tags.phone || tags['contact:phone'] || tags['contact:whatsapp'] || tags.mobile || tags['contact:mobile'] || '';
+                    const website = tags.website || tags['contact:website'] || tags.url || '';
+                    const street = tags['addr:street'] || '';
+                    const housenumber = tags['addr:housenumber'] || '';
+                    const suburb = tags['addr:suburb'] || tags['addr:district'] || '';
+                    
+                    let address = [street, housenumber, suburb, city].filter(Boolean).join(', ');
+                    if (!address) {
+                        address = `${city} (Peta Area)`;
+                    }
+
+                    const categoryName = tags.amenity || tags.shop || tags.tourism || categorySelect;
+
+                    parsedBusinesses.push({
+                        id: 'osm_' + item.id + '_' + index,
+                        name: name,
+                        category: capitalize(categoryName.replace('_', ' ')),
+                        address: address,
+                        city: city,
+                        phone: cleanPhoneNumber(phone),
+                        rawPhone: phone,
+                        website: website,
+                        lat: item.lat || lat,
+                        lon: item.lon || lon
+                    });
+                });
+
+                // Filter website
+                let filtered = parsedBusinesses;
+                if (websiteFilter === 'no_website') {
+                    filtered = parsedBusinesses.filter(b => !b.website);
+                } else if (websiteFilter === 'has_website') {
+                    filtered = parsedBusinesses.filter(b => b.website !== '');
+                }
+
+                currentResults = filtered;
+                renderResults(currentResults);
+                showLoading(false);
+
+            } catch (err) {
+                console.error(err);
+                alert('Gagal mengambil data OSM: ' + err.message + '\n\nMenampilkan data demo.');
+                generateDemoData();
+            }
+        }
+
+        function generateDemoData() {
+            showLoading(true);
+            const city = document.getElementById('cityInput').value || 'Surabaya';
+            
+            setTimeout(() => {
+                const demoList = [
+                    {
+                        id: 'demo_1',
+                        name: 'Ayam Bakar Pak Joko Local',
+                        category: 'Restoran / Kuliner',
+                        address: 'Jl. Raya Darmo No. 42, ' + city,
+                        city: city,
+                        phone: '081234567890',
+                        website: '',
+                    },
+                    {
+                        id: 'demo_2',
+                        name: 'Barbershop Premiere Gentlemans',
+                        category: 'Salon & Barbershop',
+                        address: 'Jl. Pemuda No. 15, ' + city,
+                        city: city,
+                        phone: '085711223344',
+                        website: '',
+                    },
+                    {
+                        id: 'demo_3',
+                        name: 'Bengkel Motor Jaya Abadi',
+                        category: 'Bengkel & Otomotif',
+                        address: 'Jl. Ahmad Yani No. 88, ' + city,
+                        city: city,
+                        phone: '081900887766',
+                        website: '',
+                    },
+                    {
+                        id: 'demo_4',
+                        name: 'Klinik Gigi Smile Care',
+                        category: 'Klinik Kesehatan',
+                        address: 'Jl. Diponegoro No. 101, ' + city,
+                        city: city,
+                        phone: '082199887711',
+                        website: 'https://smilecare-demo.com',
+                    },
+                    {
+                        id: 'demo_5',
+                        name: 'Toko Pakaian Fashion Hits',
+                        category: 'Boutique / Ritel',
+                        address: 'Jl. Basuki Rahmat No. 24, ' + city,
+                        city: city,
+                        phone: '081344556677',
+                        website: '',
+                    },
+                    {
+                        id: 'demo_6',
+                        name: 'Laundry Express Clean & Fresh',
+                        category: 'Laundry / Jasa',
+                        address: 'Jl. Mawar No. 7, ' + city,
+                        city: city,
+                        phone: '',
+                        website: '',
+                    }
+                ];
+
+                const websiteFilter = document.getElementById('websiteFilter').value;
+                let filtered = demoList;
+                if (websiteFilter === 'no_website') {
+                    filtered = demoList.filter(b => !b.website);
+                } else if (websiteFilter === 'has_website') {
+                    filtered = demoList.filter(b => b.website !== '');
+                }
+
+                currentResults = filtered;
+                renderResults(currentResults);
+                showLoading(false);
+            }, 500);
+        }
+
+        // Render Cards & Table view
+        function renderResults(dataList) {
+            const tbody = document.getElementById('businessTableBody');
+            const cardsContainer = document.getElementById('cardsContainer');
+            const tableContainer = document.getElementById('tableContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            tbody.innerHTML = '';
+            cardsContainer.innerHTML = '';
+
+            if (!dataList || dataList.length === 0) {
+                tableContainer.classList.add('hidden');
+                cardsContainer.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                updateStats(0, 0, 0);
+                document.getElementById('visibleCount').innerText = '0';
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            document.getElementById('visibleCount').innerText = dataList.length;
+
+            let countNoWeb = 0;
+            let countWithPhone = 0;
+
+            dataList.forEach((biz, index) => {
+                const hasWeb = !!biz.website;
+                const hasPhone = !!biz.phone;
+
+                if (!hasWeb) countNoWeb++;
+                if (hasPhone) countWithPhone++;
+
+                const isSaved = savedLeads.some(item => item.name === biz.name && item.address === biz.address);
+
+                // --- 1. RENDER MOBILE CARD ITEM ---
+                const card = document.createElement('div');
+                card.className = 'bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-3 relative';
+                
+                card.innerHTML = `
+                    <div class="space-y-1.5">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <span class="inline-block bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider mb-1">
+                                    ${escapeHtml(biz.category || 'UMKM')}
+                                </span>
+                                <h3 class="font-bold text-slate-900 text-sm leading-snug">${escapeHtml(biz.name)}</h3>
+                            </div>
+                            
+                            <button onclick="toggleBookmarkLead(${index})" 
+                                class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-xs transition ${isSaved ? 'bg-amber-50 text-amber-500 border border-amber-200' : 'bg-slate-50 text-slate-400 border border-slate-200'}">
+                                <i class="fa-solid fa-bookmark"></i>
+                            </button>
+                        </div>
+
+                        <p class="text-xs text-slate-500 flex items-start gap-1.5 pt-1">
+                            <i class="fa-solid fa-location-dot text-slate-400 mt-0.5 text-xs"></i>
+                            <span class="line-clamp-2">${escapeHtml(biz.address)}</span>
+                        </p>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 flex items-center justify-between gap-2 text-xs">
+                        <!-- Website Status Badge -->
+                        ${!hasWeb ? `
+                            <span class="inline-flex items-center gap-1 text-rose-600 font-bold bg-rose-50 px-2.5 py-1 rounded-full text-[10px] border border-rose-200">
+                                <i class="fa-solid fa-fire text-rose-500"></i> TANPA WEB
+                            </span>
+                        ` : `
+                            <a href="${escapeHtml(biz.website)}" target="_blank" class="inline-flex items-center gap-1 text-emerald-700 font-medium bg-emerald-50 px-2.5 py-1 rounded-full text-[10px] hover:underline">
+                                <i class="fa-solid fa-globe text-emerald-500"></i> Ada Web
+                            </a>
+                        `}
+
+                        <!-- Quick Actions -->
+                        <div class="flex items-center space-x-1.5">
+                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(biz.name + ' ' + biz.address)}" target="_blank"
+                                class="w-8 h-8 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-xs hover:bg-slate-200 transition" title="Cek Maps">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </a>
+
+                            ${hasPhone ? `
+                                <button onclick="sendWaPitch('${encodeURIComponent(biz.name)}', '${encodeURIComponent(biz.city)}', '${biz.phone}')" 
+                                    class="h-8 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs transition flex items-center gap-1 shadow-sm">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> Chat WA
+                                </button>
+                            ` : `
+                                <span class="text-[10px] text-slate-400 italic">No WA -</span>
+                            `}
+                        </div>
+                    </div>
+                `;
+                cardsContainer.appendChild(card);
+
+                // --- 2. RENDER DESKTOP TABLE ROW ITEM ---
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-slate-50/80 transition border-b border-slate-100';
+
+                row.innerHTML = `
+                    <td class="py-3 px-4 font-mono text-slate-400 text-[11px]">${index + 1}</td>
+                    
+                    <td class="py-3 px-4">
+                        <div class="font-bold text-slate-800 text-xs">${escapeHtml(biz.name)}</div>
+                        <div class="text-[10px] text-slate-400">${escapeHtml(biz.city || '')}</div>
+                    </td>
+
+                    <td class="py-3 px-4">
+                        <span class="inline-block bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-medium border border-slate-200">
+                            ${escapeHtml(biz.category || 'UMKM')}
+                        </span>
+                    </td>
+
+                    <td class="py-3 px-4 max-w-xs text-slate-600 text-xs truncate" title="${escapeHtml(biz.address)}">
+                        ${escapeHtml(biz.address)}
+                    </td>
+
+                    <td class="py-3 px-4 font-mono">
+                        ${hasPhone ? `
+                            <div class="flex items-center gap-1.5 text-emerald-700 font-semibold text-xs">
+                                <i class="fa-brands fa-whatsapp text-emerald-500"></i>
+                                <span>${escapeHtml(biz.phone)}</span>
+                            </div>
+                        ` : `
+                            <span class="text-slate-400 italic text-[11px]">Tidak Ada</span>
+                        `}
+                    </td>
+
+                    <td class="py-3 px-4 text-center">
+                        ${!hasWeb ? `
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">
+                                Tanpa Website 🔥
+                            </span>
+                        ` : `
+                            <a href="${escapeHtml(biz.website)}" target="_blank" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-medium">
+                                Ada Website
+                            </a>
+                        `}
+                    </td>
+
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center space-x-1.5">
+                            ${hasPhone ? `
+                                <button onclick="sendWaPitch('${encodeURIComponent(biz.name)}', '${encodeURIComponent(biz.city)}', '${biz.phone}')" 
+                                    class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-[11px] font-semibold transition flex items-center gap-1">
+                                    <i class="fa-brands fa-whatsapp"></i> Chat WA
+                                </button>
+                            ` : ''}
+
+                            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(biz.name + ' ' + biz.address)}" target="_blank" 
+                                class="p-1.5 rounded-lg bg-slate-100 text-slate-600 text-xs transition hover:bg-slate-200">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </a>
+
+                            <button onclick="toggleBookmarkLead(${index})" 
+                                class="p-1.5 rounded-lg border text-xs transition ${isSaved ? 'bg-amber-50 text-amber-500 border-amber-300' : 'bg-slate-50 text-slate-400 border-slate-200'}">
+                                <i class="fa-solid fa-bookmark"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+
+                tbody.appendChild(row);
+            });
+
+            updateStats(dataList.length, countNoWeb, countWithPhone);
+            updateDisplayModeVisibility();
+        }
+
+        function toggleDisplayMode(mode) {
+            displayMode = mode;
+            updateDisplayButtons();
+            updateDisplayModeVisibility();
+        }
+
+        function updateDisplayButtons() {
+            const cardBtn = document.getElementById('viewCardBtn');
+            const tableBtn = document.getElementById('viewTableBtn');
+
+            if (displayMode === 'card') {
+                cardBtn.className = 'px-2.5 py-1 rounded-lg font-bold transition bg-white text-slate-800 shadow-sm';
+                tableBtn.className = 'px-2.5 py-1 rounded-lg font-bold text-slate-500 hover:text-slate-800 transition';
+            } else {
+                tableBtn.className = 'px-2.5 py-1 rounded-lg font-bold transition bg-white text-slate-800 shadow-sm';
+                cardBtn.className = 'px-2.5 py-1 rounded-lg font-bold text-slate-500 hover:text-slate-800 transition';
+            }
+        }
+
+        function updateDisplayModeVisibility() {
+            const cardsContainer = document.getElementById('cardsContainer');
+            const tableContainer = document.getElementById('tableContainer');
+            const emptyState = document.getElementById('emptyState');
+
+            if (!emptyState.classList.contains('hidden')) return;
+
+            if (displayMode === 'card') {
+                cardsContainer.classList.remove('hidden');
+                tableContainer.classList.add('hidden');
+            } else {
+                tableContainer.classList.remove('hidden');
+                cardsContainer.classList.add('hidden');
+            }
+        }
+
+        function updateStats(total, noWeb, withPhone) {
+            document.getElementById('statTotal').innerText = total;
+            document.getElementById('statNoWeb').innerText = noWeb;
+            document.getElementById('statWithPhone').innerText = withPhone;
+
+            const estRevenue = noWeb * 1500000;
+            document.getElementById('statOpportunity').innerText = 'Rp ' + estRevenue.toLocaleString('id-ID');
+        }
+
+        function sendWaPitch(encodedName, encodedCity, phone) {
+            const name = decodeURIComponent(encodedName);
+            const city = decodeURIComponent(encodedCity) || 'Anda';
+            
+            let message = activeWaTemplate
+                .replace(/{nama_bisnis}/g, name)
+                .replace(/{kota}/g, city);
+
+            const cleanPhone = cleanPhoneNumber(phone);
+            let formattedPhone = cleanPhone;
+
+            if (formattedPhone.startsWith('0')) {
+                formattedPhone = '62' + formattedPhone.slice(1);
+            }
+
+            const waUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+        }
+
+        function toggleBookmarkLead(index) {
+            const activeList = (currentTab === 'search') ? currentResults : savedLeads;
+            const targetBiz = activeList[index];
+
+            if (!targetBiz) return;
+
+            const existingIndex = savedLeads.findIndex(item => item.name === targetBiz.name && item.address === targetBiz.address);
+
+            if (existingIndex > -1) {
+                savedLeads.splice(existingIndex, 1);
+            } else {
+                savedLeads.push(targetBiz);
+            }
+
+            localStorage.setItem('biz_finder_saved_leads', JSON.stringify(savedLeads));
+            updateSavedCount();
+
+            if (currentTab === 'saved') {
+                renderResults(savedLeads);
+            } else {
+                renderResults(currentResults);
+            }
+        }
+
+        function updateSavedCount() {
+            const count = savedLeads.length;
+            document.getElementById('savedCountBadge').innerText = count;
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            const navTabSearch = document.getElementById('navTabSearch');
+            const navTabSaved = document.getElementById('navTabSaved');
+
+            if (tab === 'saved') {
+                navTabSaved.className = 'flex flex-col items-center justify-center text-emerald-400 font-bold transition relative';
+                navTabSearch.className = 'flex flex-col items-center justify-center text-slate-400 font-medium transition';
+                renderResults(savedLeads);
+            } else {
+                navTabSearch.className = 'flex flex-col items-center justify-center text-emerald-400 font-bold transition';
+                navTabSaved.className = 'flex flex-col items-center justify-center text-slate-400 font-medium transition relative';
+                renderResults(currentResults);
+            }
+        }
+
+        function filterTableByText(keyword) {
+            const activeList = (currentTab === 'search') ? currentResults : savedLeads;
+            if (!keyword.trim()) {
+                renderResults(activeList);
+                return;
+            }
+
+            const term = keyword.toLowerCase();
+            const filtered = activeList.filter(item => 
+                (item.name && item.name.toLowerCase().includes(term)) ||
+                (item.address && item.address.toLowerCase().includes(term)) ||
+                (item.category && item.category.toLowerCase().includes(term))
+            );
+
+            renderResults(filtered);
+        }
+
+        function exportToCSV() {
+            const activeList = (currentTab === 'search') ? currentResults : savedLeads;
+
+            if (!activeList || activeList.length === 0) {
+                alert('Tidak ada data untuk diekspor.');
+                return;
+            }
+
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += "No,Nama Bisnis,Kategori,Alamat,Kota,Nomor Telepon,Website,Status Website\n";
+
+            activeList.forEach((biz, idx) => {
+                const row = [
+                    idx + 1,
+                    `"${(biz.name || '').replace(/"/g, '""')}"`,
+                    `"${(biz.category || '').replace(/"/g, '""')}"`,
+                    `"${(biz.address || '').replace(/"/g, '""')}"`,
+                    `"${(biz.city || '').replace(/"/g, '""')}"`,
+                    `"${biz.phone || ''}"`,
+                    `"${biz.website || ''}"`,
+                    biz.website ? "Punya Website" : "Tanpa Website (Prospek)"
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `Prospek_UMKM_${new Date().toISOString().slice(0,10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function openTemplateModal() {
+            document.getElementById('templateModal').classList.remove('hidden');
+        }
+
+        function closeTemplateModal() {
+            document.getElementById('templateModal').classList.add('hidden');
+        }
+
+        function saveWaTemplate() {
+            const text = document.getElementById('waTemplateText').value.trim();
+            if (!text) {
+                alert('Pesan template tidak boleh kosong.');
+                return;
+            }
+            activeWaTemplate = text;
+            localStorage.setItem('biz_finder_wa_template', text);
+            closeTemplateModal();
+            alert('Template WhatsApp berhasil disimpan!');
+        }
+
+        function resetWaTemplate() {
+            if (confirm('Kembalikan pesan template ke default?')) {
+                activeWaTemplate = defaultWaPitch;
+                document.getElementById('waTemplateText').value = defaultWaPitch;
+                localStorage.setItem('biz_finder_wa_template', defaultWaPitch);
+            }
+        }
+
+        function showLoading(isLoading) {
+            const loadingState = document.getElementById('loadingState');
+            const cardsContainer = document.getElementById('cardsContainer');
+            const tableContainer = document.getElementById('tableContainer');
+            const emptyState = document.getElementById('emptyState');
+            const searchBtn = document.getElementById('searchSubmitBtn');
+
+            if (isLoading) {
+                loadingState.classList.remove('hidden');
+                cardsContainer.classList.add('hidden');
+                tableContainer.classList.add('hidden');
+                emptyState.classList.add('hidden');
+                searchBtn.disabled = true;
+                searchBtn.classList.add('opacity-70');
+            } else {
+                loadingState.classList.add('hidden');
+                searchBtn.disabled = false;
+                searchBtn.classList.remove('opacity-70');
+            }
+        }
+
+        function cleanPhoneNumber(phone) {
+            if (!phone) return '';
+            return phone.replace(/[^0-9]/g, '');
+        }
+
+        function capitalize(str) {
+            if (!str) return '';
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
