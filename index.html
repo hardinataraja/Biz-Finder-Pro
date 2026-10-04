@@ -427,26 +427,11 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
             }
         }
 
-        // Helper Fetch dengan Strict Timeout (Mencegah Muter-Muter Berkelanjutan)
-        async function fetchWithTimeout(url, options = {}, timeoutMs = 7000) {
-            const controller = new AbortController();
-            const timer = setTimeout(() => controller.abort(), timeoutMs);
-            try {
-                const response = await fetch(url, {
-                    ...options,
-                    signal: controller.signal
-                });
-                clearTimeout(timer);
-                return response;
-            } catch (err) {
-                clearTimeout(timer);
-                throw err;
-            }
-        }
-
+        // Pencarian dilakukan melalui Vercel Serverless Function agar API
+        // Nominatim/Overpass tidak dipanggil langsung dari browser.
         async function handleSearch(e) {
             if (e) e.preventDefault();
-            
+
             const cityInput = document.getElementById('cityInput');
             const city = cityInput ? cityInput.value.trim() : '';
             const categorySelect = document.getElementById('categorySelect').value;
@@ -480,140 +465,36 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
             }
 
             showLoading(true);
-            let lastErrorReason = '';
 
             try {
-                // 1. Fetch Geocode Area Bounds dari Nominatim API
-                const geoUrl = `https://nominatim.openstreetmap.org/search?format=json&accept-language=id&q=${encodeURIComponent(city)}`;
-                const geoRes = await fetchWithTimeout(geoUrl, {}, 6000);
-                
-                if (!geoRes.ok) {
-                    throw new Error(`Nominatim error HTTP ${geoRes.status}`);
-                }
-                
-                const geoData = await geoRes.json();
-
-                if (!geoData || geoData.length === 0) {
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Lokasi Tidak Ditemukan',
-                        text: 'Lokasi kota tidak ditemukan. Mohon periksa kembali ejaan nama kota.',
-                        confirmButtonColor: '#10b981',
-                        customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
-                    });
-                    return false;
-                }
-
-                const location = geoData[0];
-                const lat = parseFloat(location.lat);
-                const lon = parseFloat(location.lon);
-
-                // Bounding Box (~8km area radius)
-                const bbox = `${lat - 0.08},${lon - 0.08},${lat + 0.08},${lon + 0.08}`;
-                
-                let amenityFilter = '';
-                if (categoryTag === 'restaurant') {
-                    amenityFilter = `["amenity"~"restaurant|cafe|fast_food|food_court"]`;
-                } else if (categoryTag === 'hairdresser') {
-                    amenityFilter = `["shop"~"hairdresser|beauty"]`;
-                } else if (categoryTag === 'car_repair') {
-                    amenityFilter = `["shop"~"car_repair|motorcycle_repair"]`;
-                } else if (categoryTag === 'clothes') {
-                    amenityFilter = `["shop"~"clothes|boutique|fashion"]`;
-                } else if (categoryTag === 'clinic') {
-                    amenityFilter = `["amenity"~"clinic|dentist|doctors|pharmacy"]`;
-                } else if (categoryTag === 'hotel') {
-                    amenityFilter = `["tourism"~"hotel|guest_house|motel"]`;
-                } else if (categoryTag === 'laundry') {
-                    amenityFilter = `["shop"~"laundry"]`;
-                } else if (categoryTag !== 'all') {
-                    amenityFilter = `["amenity"="${categoryTag}"]`;
-                } else {
-                    amenityFilter = `["name"]`;
-                }
-
-                const overpassQuery = `[out:json][timeout:15];(node${amenityFilter}(${bbox});way${amenityFilter}(${bbox}););out body 50;`;
-
-                // Mirror Endpoints Overpass API
-                const overpassEndpoints = [
-                    'https://overpass-api.de/api/interpreter',
-                    'https://overpass.kumi.systems/api/interpreter',
-                    'https://overpass.private.coffee/api/interpreter'
-                ];
-
-                let data = null;
-                let fetchSuccess = false;
-
-                for (const endpoint of overpassEndpoints) {
-                    try {
-                        const getUrl = `${endpoint}?data=${encodeURIComponent(overpassQuery)}`;
-                        const response = await fetchWithTimeout(getUrl, { method: 'GET' }, 7000);
-
-                        if (response.ok) {
-                            data = await response.json();
-                            fetchSuccess = true;
-                            break;
-                        } else {
-                            lastErrorReason = `HTTP ${response.status} (${response.statusText})`;
-                        }
-                    } catch (err) {
-                        lastErrorReason = err.name === 'AbortError' ? 'Server Timeout (7 detik)' : (err.message || 'CORS / Blocked Request');
-                        console.warn(`Endpoint ${endpoint} gagal: ${lastErrorReason}`);
-                    }
-                }
-
-                if (!fetchSuccess || !data) {
-                    throw new Error(lastErrorReason || 'Gagal terhubung ke semua server Overpass OSM.');
-                }
-                
-                let rawList = data.elements || [];
-                let parsedBusinesses = [];
-
-                rawList.forEach((item, index) => {
-                    const tags = item.tags || {};
-                    const name = tags.name || tags['name:id'] || tags['brand'];
-                    
-                    if (!name) return;
-
-                    const phone = tags.phone || tags['contact:phone'] || tags['contact:whatsapp'] || tags.mobile || tags['contact:mobile'] || '';
-                    const website = tags.website || tags['contact:website'] || tags.url || '';
-                    const street = tags['addr:street'] || '';
-                    const housenumber = tags['addr:housenumber'] || '';
-                    const suburb = tags['addr:suburb'] || tags['addr:district'] || '';
-                    
-                    let address = [street, housenumber, suburb, city].filter(Boolean).join(', ');
-                    if (!address) {
-                        address = `${city} (Peta Area)`;
-                    }
-
-                    const categoryName = tags.amenity || tags.shop || tags.tourism || categorySelect;
-
-                    parsedBusinesses.push({
-                        id: 'osm_' + item.id + '_' + index,
-                        name: name,
-                        category: capitalize(categoryName.replace('_', ' ')),
-                        address: address,
-                        city: city,
-                        phone: cleanPhoneNumber(phone),
-                        rawPhone: phone,
-                        website: website,
-                        lat: item.lat || lat,
-                        lon: item.lon || lon
-                    });
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        city,
+                        category: categoryTag,
+                        websiteFilter
+                    })
                 });
 
-                // Filter website
-                let filtered = parsedBusinesses;
-                if (websiteFilter === 'no_website') {
-                    filtered = parsedBusinesses.filter(b => !b.website);
-                } else if (websiteFilter === 'has_website') {
-                    filtered = parsedBusinesses.filter(b => b.website !== '');
+                let payload = null;
+                try {
+                    payload = await response.json();
+                } catch (parseError) {
+                    throw new Error(`Respons server tidak valid (HTTP ${response.status}).`);
                 }
 
-                currentResults = filtered;
+                if (!response.ok || !payload.ok) {
+                    const providerMessage = payload && payload.error
+                        ? payload.error
+                        : `Pencarian gagal (HTTP ${response.status}).`;
+                    throw new Error(providerMessage);
+                }
+
+                currentResults = Array.isArray(payload.results) ? payload.results : [];
                 renderResults(currentResults);
 
-                if (filtered.length === 0) {
+                if (currentResults.length === 0) {
                     Swal.fire({
                         icon: 'info',
                         title: 'Tidak Ada Hasil',
@@ -622,17 +503,17 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
                         customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
                     });
                 }
-
             } catch (err) {
-                console.error(err);
-                
+                console.error('Pencarian gagal:', err);
+
                 Swal.fire({
                     icon: 'error',
-                    title: 'Server Overpass Sibuk / Terkena CORS',
+                    title: 'Pencarian Gagal',
                     html: `
                         <div class="text-left text-xs space-y-2 text-slate-600">
-                            <p><strong>Penyebab:</strong> <span class="text-rose-600">${escapeHtml(err.message || 'Network / CORS Error')}</span></p>
-                            <p>Server publik OpenStreetMap sedang padat atau membatasi permintaan dari domain Vercel Anda.</p>
+                            <p><strong>Penyebab:</strong> <span class="text-rose-600">${escapeHtml(err.message || 'Network Error')}</span></p>
+                            <p>Server pencarian sedang sibuk atau tidak dapat menghubungi penyedia data OpenStreetMap.</p>
+                            <p class="text-slate-500">Silakan coba lagi beberapa saat kemudian atau gunakan area/kategori yang lebih spesifik.</p>
                             <p class="font-semibold text-slate-700">Apakah Anda ingin menampilkan Data Simulasi Demo?</p>
                         </div>
                     `,
@@ -647,9 +528,7 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
                         cancelButton: 'rounded-xl font-bold text-xs px-4 py-2.5'
                     }
                 }).then((result) => {
-                    if (result.isConfirmed) {
-                        generateDemoData();
-                    }
+                    if (result.isConfirmed) generateDemoData();
                 });
             } finally {
                 showLoading(false);
