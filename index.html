@@ -270,7 +270,7 @@ $('cat').onchange=e=>$('cc').classList.toggle('hide',e.target.value!=='custom');
 function dash(){
   const hp=cur.filter(b=>b.opportunityScore>=75).length,d=demoMode;
   const c=[['BUSINESSES',cur.length],['NO WEBSITE',cur.filter(b=>b.websiteStatus==='No Website').length],['HIGH POT.',hp],
-    ['MARKET SOURCES',srcOn+'/'+srcAll],['DATASETS',d?3:'-'],['B2B SIGNALS',d?2:'-'],['LEADS',saved.length]];
+    ['MARKET SOURCES',Object.values(SRC).filter(v=>v==='ACTIVE').length+'/'+srcAll],['DATASETS',d?3:(NS.datasets==null?'-':NS.datasets)],['B2B SIGNALS',d?2:(NS.b2b==null?'-':NS.b2b)],['LEADS',saved.length]];
   $('dash').innerHTML=c.map(x=>'<div class="dc"><small>'+x[0]+'</small><strong>'+x[1]+'</strong></div>').join('');
   $('dem').classList.toggle('hide',!d);
 }
@@ -458,7 +458,7 @@ function rExport(){
    '<div>Current Results ('+view.length+') '+B('cur-csv','CSV')+B('cur-json','JSON')+'</div>'+
    '<div>Saved Leads ('+saved.length+') '+B('lead-csv','CSV')+B('lead-json','JSON')+'</div>'+
    '<div>Opportunities (skor ≥ 45: '+cur.filter(b=>b.opportunityScore>=45).length+') '+B('opp-csv','CSV')+B('opp-json','JSON')+'</div>'+
-   '<div>Market Data '+B('mkt-json','JSON')+'<span class="mut">'+(demoMkt?'[DEMO DATA — NOT REAL]':'belum ada data pasar (sumber NOT CONFIGURED)')+'</span></div></div>'+
+   '<div>Market Data '+B('mkt-json','JSON')+'<span class="mut">'+(demoMode&&demoMkt?'[DEMO DATA — NOT REAL]':marketData()?'':'belum ada data pasar yang diambil (buka tab MARKET/OPPORTUNITY/PRICE)')+'</span></div></div>'+
    '<div class="mut" style="margin-top:10px;font-size:12px">Kolom: '+COLS.join(', ')+'</div>';
 }
 $('xp').onclick=e=>{
@@ -466,36 +466,137 @@ $('xp').onclick=e=>{
   if(k==='cur')exportList(view,'current',fmt);
   else if(k==='lead')exportList(saved,'leads',fmt);
   else if(k==='opp')exportList(cur.filter(b=>b.opportunityScore>=45).sort((a,b)=>b.opportunityScore-a.opportunityScore),'opportunities',fmt);
-  else if(demoMkt)dl('DEMO_bizfinder_market_'+today()+'.json','application/json',JSON.stringify(demoMkt,null,2));
-  else alert('Belum ada data pasar: semua sumber pasar berstatus NOT CONFIGURED.');
+  else{const m=marketData();if(m)dl('bizfinder_market_'+today()+'.json','application/json',JSON.stringify(m,null,2));else alert('Belum ada data pasar yang diambil dari BPS / Satu Data / LKPP / Price.')}
 };
 
 /* ---------- MARKET / PRICE / OPPORTUNITY ---------- */
 const demoTag='<div class="demo">[DEMO DATA — NOT REAL]</div>';
+/* ---------- koneksi API: MARKET / OPPORTUNITY / PRICE (data nyata, tanpa data palsu) ---------- */
+const SRC={osm:'ACTIVE',bps:'-',satuData:'-',lkpp:'-',price:'-'};
+const NS={datasets:null,b2b:null};
+const apiC=new Map();
+async function api(url){
+  const c=apiC.get(url);if(c&&Date.now()-c.t<6e5)return c.v;
+  if(location.protocol==='file:')return {ok:false,status:0,error:'butuh server (buka lewat URL Vercel atau "vercel dev")'};
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),35000);
+  try{
+    const r=await fetch(url,{signal:ctl.signal});let p;
+    try{p=await r.json()}catch{p={ok:false,error:r.status===404?'Endpoint '+url.split('?')[0]+' tidak ditemukan (HTTP 404). Pastikan file ada di folder api/ lalu deploy ulang.':'Respons server bukan JSON (HTTP '+r.status+').'}}
+    p.status=r.status;if(p.ok)apiC.set(url,{t:Date.now(),v:p});return p;
+  }catch(e){return {ok:false,status:0,error:e.name==='AbortError'?'timeout: permintaan lebih dari 35 detik':'gagal terhubung: '+e.message}}
+  finally{clearTimeout(to)}
+}
+function setSrc(k,p){if(p.status!==400)SRC[k]=p.ok?'ACTIVE':p.status===503?'NOT CONFIGURED':'ERROR';dash()}
+const put=(id,h)=>{const e=$(id);if(e)e.innerHTML=h};
+const errBox=p=>'<div class="err">[!] ERROR: '+esc(p.error||'gagal')+(p.status?' (HTTP '+p.status+')':'')+'</div>'+(p.details||[]).slice(0,3).map(d=>'<div class="mut">    - '+esc(d)+'</div>').join('')+(p.status===429?'<div class="warn">[i] coba beberapa saat lagi</div>':'');
+const chips=(arr,a)=>arr.map(x=>'<button data-'+a+'="'+esc(x)+'">'+esc(x)+'</button>').join(' ');
+const tbl=(h,rows)=>'<div class="tw"><table style="min-width:640px"><thead><tr>'+h.map(x=>'<th>'+x+'</th>').join('')+'</tr></thead><tbody>'+rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+const lnk=(u,t)=>/^https?:\/\//i.test(u||'')?'<a class="w" target="_blank" rel="noopener" href="'+esc(u)+'">'+esc(t||u)+'</a>':esc(t||'-');
+const nv=v=>v==null||v===''?'<span class="mut">-</span>':esc(v);
+const dsRows=(p,kat)=>tbl(['Dataset','Publisher','Kategori','Format','Updated','Source'],p.results.map(r=>[lnk(r.url,r.title||'-'),nv(r.organization),nv(kat),nv(r.format),nv(r.updated&&String(r.updated).slice(0,10)),nv(r.source)]));
+function pager(p,w){const pages=Math.max(1,Math.ceil((p.total||p.count||0)/(p.limit||10)));
+  return '<div class="tabs" style="margin-top:8px"><button data-pg="-1" data-w="'+w+'"'+(p.page<=1?' disabled':'')+'>&lt;</button><span class="mut">hal '+p.page+'/'+pages+' · total '+(p.total==null?'-':p.total)+'</span><button data-pg="1" data-w="'+w+'"'+(p.page>=pages?' disabled':'')+'>&gt;</button></div>'}
+const loading='<span class="mut">memuat ...</span>';
+const SD_CATS=['UMKM','Penduduk','Pertanian','Perdagangan','Harga','Tenaga Kerja','Pariwisata','Industri','Transportasi'];
+const B2B_CATS=['Website','Software','Aplikasi','Mobile App','Server','Jaringan','CCTV','Komputer','POS','IT','Digitalisasi','Sistem Informasi'];
+const PR_CATS=['Sembako','Sayur','Buah','Pertanian','Elektronik','HP','Sparepart','Komoditas'];
+const M={dom:store.get('biz_bps_domain')||'',kw:'',bps:null,sd:null,sdq:''};
+const O={q:'',res:null};
+const P={q:'',loc:'',res:null};
+const busy=(b,on)=>{if(b)b.disabled=on};
+function marketData(){
+  if(demoMode&&demoMkt)return demoMkt;
+  const m={bps:M.bps,satudata:M.sd,lkpp:O.res,price:P.res},o={};
+  for(const k in m)if(m[k]&&m[k].ok&&!(Array.isArray(m[k].results)&&!m[k].results.length)){const c=Object.assign({},m[k]);delete c.status;o[k]=c}
+  return Object.keys(o).length?o:null;
+}
+
+/* --- MARKET --- */
+function bpsRows(p){const d=p&&p.data&&p.data.data;if(!Array.isArray(d))return [];const a=d.find(x=>Array.isArray(x))||(d.every(x=>x&&typeof x==='object'&&!Array.isArray(x))?d:[]);return a.filter(x=>x&&typeof x==='object')}
+function bpsHtml(){
+  const p=M.bps;if(!p)return '<span class="mut">belum ada permintaan</span>';if(!p.ok)return errBox(p);
+  const rows=p.model==='var'?bpsRows(p):[];
+  if(rows.length)return tbl(['var','judul','unit',''],rows.slice(0,50).map(x=>{const id=x.var_id||x.id;return [nv(id),nv(x.title||x.name||x.label),nv(x.unit),id?'<button data-bv="'+esc(id)+'">ambil data</button>':'']}))+'<div class="mut" style="font-size:12px">Source: BPS Web API'+(p.cached?' · cache':'')+'</div>';
+  return (p.message?'<div class="warn">'+esc(p.message)+'</div>':'')+(p.note?'<div class="mut">'+esc(p.note)+'</div>':'')+'<div class="mut">RAW BPS ('+esc(p.model)+') — Source: BPS Web API</div><pre style="max-height:320px;overflow:auto;white-space:pre-wrap;word-break:break-all;font-size:12px">'+esc(JSON.stringify(p.data,null,1).slice(0,6000))+'</pre>';
+}
+function sdHtml(){
+  const p=M.sd;if(!p)return '<span class="mut">belum ada pencarian</span>';if(!p.ok)return errBox(p);
+  return (p.results.length?dsRows(p,M.sdq)+pager(p,'sd'):'<div class="warn">'+esc(p.message||'Tidak ada hasil.')+'</div>')+'<div class="mut" style="font-size:12px">Source: Satu Data Indonesia (data.go.id)'+(p.cached?' · cache':'')+'</div>';
+}
+async function bpsCall(url,b){busy(b,true);put('bpsR',loading);const p=await api(url);setSrc('bps',p);M.bps=p;put('bpsR',bpsHtml());busy(b,false)}
+async function sdCall(q,page,b){busy(b,true);put('sdR',loading);M.sdq=q;const p=await api('/api/satudata?q='+encodeURIComponent(q)+'&limit=10&page='+page);setSrc('satuData',p);M.sd=p;if(p.ok)NS.datasets=p.total!=null?p.total:p.count;put('sdR',sdHtml());busy(b,false)}
 function rMarket(){
   const ind=['Population','Population Growth','Economic Growth','Poverty','Employment','Unemployment','Industry','Trade','Agriculture','Tourism'];
-  const dv=demoMkt?demoMkt.snapshot:{};
-  $('mk').innerHTML=(demoMode?demoTag:'')+'<div>MARKET SNAPSHOT</div><div class="mut">Location: '+esc(lastCity||'-')+'</div><div class="kv" style="margin:8px 0">'+
-    ind.map(i=>'<span>'+i+'</span><span>'+(dv[i]?esc(dv[i])+' <span class="warn">[DEMO]</span>':'----')+'</span>').join('')+'</div>'+
-    '<div class="warn">[BPS NOT CONFIGURED]</div><div class="mut" style="font-size:12px">Butuh '+DATA_SOURCES.bps.env+' (server-side) dan endpoint '+DATA_SOURCES.bps.endpoint+'. Belum ada data palsu yang ditampilkan.</div>'+
-    '<div class="sec">SATU DATA INDONESIA / data.go.id</div><input disabled placeholder="Search dataset..." aria-label="Search dataset"><div class="mut" style="margin:6px 0">UMKM · Penduduk · Pertanian · Perdagangan · Harga · Tenaga Kerja · Pariwisata · Industri · Transportasi</div>'+
-    '<div class="warn">[SATU DATA NOT CONFIGURED]</div>'+
-    '<div class="sec">SOURCES</div>'+Object.keys(DATA_SOURCES).map(k=>'<div>'+DATA_SOURCES[k].name+': '+(DATA_SOURCES[k].configured?'<span>ACTIVE</span>':'<span class="warn">NOT CONFIGURED</span>')+'</div>').join('');
+  if(demoMode&&demoMkt){
+    const dv=demoMkt.snapshot;
+    $('mk').innerHTML=demoTag+'<div>MARKET SNAPSHOT</div><div class="mut">Location: '+esc(lastCity||'-')+'</div><div class="kv" style="margin:8px 0">'+ind.map(i=>'<span>'+i+'</span><span>'+(dv[i]?esc(dv[i])+' <span class="warn">[DEMO]</span>':'----')+'</span>').join('')+'</div><div class="mut">Keluar dari mode demo dengan menjalankan pencarian nyata untuk memakai BPS & Satu Data.</div>';return;
+  }
+  $('mk').innerHTML='<div>MARKET SNAPSHOT</div><div class="mut">Location: '+esc(lastCity||'-')+'</div>'+
+   '<div class="kv" style="margin:8px 0">'+ind.map(i=>'<span>'+i+'</span><span>----</span>').join('')+'</div><div class="mut" style="font-size:12px">Indikator diisi dari data BPS yang Anda pilih di bawah (ditampilkan apa adanya, tanpa angka karangan).</div>'+
+   '<div class="sec">BPS WEB API '+(SRC.bps==='NOT CONFIGURED'?'<span class="warn">[BPS NOT CONFIGURED]</span>':'')+'</div>'+
+   '<div class="fl"><div><label for="bpsD">domain BPS (4 digit)</label><input id="bpsD" inputmode="numeric" maxlength="4" value="'+esc(M.dom)+'" placeholder="mis. 3500"></div><div><label for="bpsK">kata kunci indikator</label><input id="bpsK" value="'+esc(M.kw)+'" placeholder="penduduk, kemiskinan..."></div><div><label for="bpsY">tahun (opsional)</label><input id="bpsY" inputmode="numeric" maxlength="4" placeholder="2025"></div><div><button type="button" id="bpsGo">cari variabel</button></div></div>'+
+   '<div id="bpsR" style="margin-top:8px">'+bpsHtml()+'</div>'+
+   '<div class="sec">SATU DATA INDONESIA / data.go.id '+(SRC.satuData==='ERROR'?'<span class="warn">[ERROR]</span>':'')+'</div>'+
+   '<div class="fl"><div><label for="sdQ">Search dataset...</label><input id="sdQ" value="'+esc(M.sdq)+'" placeholder="UMKM, pariwisata, kuliner..."></div><div><button type="button" id="sdGo">cari</button></div></div>'+
+   '<div class="tabs" style="margin-top:8px">'+chips(SD_CATS,'sdc')+'</div><div id="sdR">'+sdHtml()+'</div>'+
+   '<div class="sec">SOURCES</div>'+['osm','bps','satuData','lkpp','price'].map(k=>'<div>'+DATA_SOURCES[k].name+': '+(SRC[k]==='ACTIVE'?'ACTIVE':SRC[k]==='-'?'<span class="mut">belum dipakai</span>':'<span class="warn">'+SRC[k]+'</span>')+'</div>').join('');
+}
+$('mk').addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t||t.disabled)return;
+  if(t.id==='bpsGo'){const d=$('bpsD').value.trim(),k=$('bpsK').value.trim();if(!/^\d{4}$/.test(d)){put('bpsR','<div class="err">[!] ERROR: domain BPS harus 4 digit angka.</div>');return}
+    M.dom=d;M.kw=k;store.set('biz_bps_domain',d);bpsCall('/api/bps?domain='+d+(k?'&keyword='+encodeURIComponent(k):''),t)}
+  else if(t.dataset.bv){const y=($('bpsY')||{}).value||'';bpsCall('/api/bps?domain='+encodeURIComponent(M.dom)+'&var='+encodeURIComponent(t.dataset.bv)+(/^\d{4}$/.test(y.trim())?'&year='+y.trim():''),t)}
+  else if(t.id==='sdGo'){const q=$('sdQ').value.trim();if(!q){put('sdR','<div class="err">[!] ERROR: kata kunci kosong.</div>');return}sdCall(q,1,t)}
+  else if(t.dataset.sdc){$('sdQ').value=t.dataset.sdc;sdCall(t.dataset.sdc,1,t)}
+  else if(t.dataset.w==='sd'&&M.sd&&M.sd.ok)sdCall(M.sdq,M.sd.page+ +t.dataset.pg,t);
+});
+
+/* --- PRICE --- */
+function prHtml(){
+  const p=P.res;if(!p)return '<span class="mut">belum ada pencarian</span>';if(!p.ok)return errBox(p);
+  if(!p.results.length)return '<div class="warn">PRICE SOURCE NOT CONFIGURED</div><div class="mut">'+esc(p.message||'Tidak ada hasil.')+'</div>'+((p.warnings||[]).map(w=>'<div class="mut">- '+esc(w)+'</div>').join(''));
+  return tbl(['Product','Current','Unit','Location','Date','Source'],p.results.map(r=>[nv(r.product),r.price==null?nv(null):esc((r.currency&&r.currency!=='IDR'?r.currency+' ':'Rp ')+Number(r.price).toLocaleString('id-ID')),nv(r.unit),nv(r.location),nv(r.date),lnk(r.url,r.source)]))+'<div class="mut" style="font-size:12px">Change (%) tidak dihitung: tidak ada data historis dari sumber.</div>';
 }
 function rPrice(){
-  const rows=demoMkt?demoMkt.price:[];
-  $('pr').innerHTML=(demoMode?demoTag:'')+'<div>PRICE INTELLIGENCE</div><div class="mut">Sembako · Sayur · Buah · Pertanian · Elektronik · HP · Sparepart · Komoditas</div>'+
-    (rows.length?'<table style="min-width:360px;margin-top:8px"><thead><tr><th>Product</th><th>Current</th><th>Change</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>').join('')+'</tbody></table>':'<div class="warn" style="margin-top:8px">PRICE SOURCE NOT CONFIGURED</div>');
+  if(demoMode&&demoMkt){$('pr').innerHTML=demoTag+'<div>PRICE INTELLIGENCE</div><table style="min-width:360px;margin-top:8px"><thead><tr><th>Product</th><th>Current</th><th>Change</th></tr></thead><tbody>'+demoMkt.price.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>').join('')+'</tbody></table>';return}
+  $('pr').innerHTML='<div>PRICE INTELLIGENCE</div><div class="fl" style="margin-top:8px"><div><label for="prQ">produk</label><input id="prQ" value="'+esc(P.q)+'" placeholder="beras, telur, semen..."></div><div><label for="prL">lokasi (opsional)</label><input id="prL" value="'+esc(P.loc)+'"></div><div><button type="button" id="prGo">cari harga</button></div></div>'+
+   '<div class="tabs" style="margin-top:8px">'+chips(PR_CATS,'prc')+'</div><div id="prR">'+prHtml()+'</div>';
 }
+async function prCall(q,loc,b){
+  busy(b,true);P.q=q;P.loc=loc;put('prR',loading);
+  const p=await api('/api/pricelist?q='+encodeURIComponent(q)+(loc?'&location='+encodeURIComponent(loc):''));
+  setSrc('price',p);if(p.ok&&!(p.sources||[]).length){SRC.price='NOT CONFIGURED';dash()}
+  P.res=p;put('prR',prHtml());busy(b,false);
+}
+$('pr').addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t||t.disabled)return;
+  if(t.id==='prGo'){const q=$('prQ').value.trim();if(!q){put('prR','<div class="err">[!] ERROR: produk kosong.</div>');return}prCall(q,$('prL').value.trim(),t)}
+  else if(t.dataset.prc){$('prQ').value=t.dataset.prc;prCall(t.dataset.prc,($('prL')||{}).value||'',t)}
+});
+
+/* --- OPPORTUNITY --- */
+function b2bHtml(){
+  const p=O.res;if(!p)return '<span class="mut">belum ada pencarian</span>';if(!p.ok)return errBox(p);
+  if(!p.results.length)return '<div class="warn">'+esc(p.message||'Tidak ada hasil.')+'</div>';
+  return '<div class="hot">🔥 B2B SIGNAL: '+p.total+' dataset LKPP untuk "'+esc(p.query)+'"</div>'+tbl(['Project / Dataset','Instansi','Kategori','Format','Tanggal','Source'],p.results.map(r=>[lnk(r.url,r.title||'-'),nv(r.organization),nv(p.query),nv(r.format),nv(r.updated&&String(r.updated).slice(0,10)),nv(r.source)]))+pager(p,'b2b')+
+   '<div class="mut" style="font-size:12px">Portal data LKPP berisi metadata dataset publik, bukan daftar tender. Nilai, status, dan lokasi proyek tidak tersedia dari sumber ini (ditampilkan "-" bila ada kolomnya). Source: LKPP</div>';
+}
+async function b2bCall(q,page,b){busy(b,true);O.q=q;put('b2bR',loading);const p=await api('/api/lkpp?q='+encodeURIComponent(q)+'&limit=10&page='+page);setSrc('lkpp',p);O.res=p;if(p.ok)NS.b2b=p.total!=null?p.total:p.count;put('b2bR',b2bHtml());busy(b,false)}
 function rOpp(){
-  const top=cur.slice().sort((a,b)=>b.opportunityScore-a.opportunityScore).slice(0,10);
-  lview=top;
+  const top=cur.slice().sort((a,b)=>b.opportunityScore-a.opportunityScore).slice(0,10);lview=top;
   $('op').innerHTML=(demoMode?demoTag:'')+'<div>TOP BUSINESS OPPORTUNITIES <span class="mut">(Estimated Opportunity Score)</span></div>'+
    (top.length?top.map((b,i)=>'<div class="opp"><span class="mut">'+String(i+1).padStart(2,'0')+'</span><div>'+esc(b.name)+'<br><span class="mut">'+esc(b.category||'-')+' · '+(b.website?'Website '+esc(b.websiteStatus):'No Website')+' · Phone '+(b.phone?'✓':'-')+'</span></div><div>'+scHtml(b)+'</div><button data-i="'+i+'">[VIEW]</button></div>').join(''):'<div class="empty">Belum ada hasil. Jalankan pencarian di [DISCOVER].</div>')+
    '<div class="sec">🔥 B2B OPPORTUNITY (LKPP / Pengadaan)</div>'+
-   (demoMkt&&demoMkt.b2b.length?demoMkt.b2b.map(x=>'<div class="opp"><div>'+x[0]+'<br><span class="mut">Instansi: '+x[1]+' · Lokasi: '+x[2]+' · Nilai: '+x[3]+' · Status: '+x[4]+'</span></div></div>').join(''):'<div class="warn">[LKPP NOT CONFIGURED]</div><div class="mut" style="font-size:12px">Nilai dan status proyek tidak dibuat bila sumber tidak menyediakannya.</div>');
+   (demoMode&&demoMkt?demoMkt.b2b.map(x=>'<div class="opp"><div>'+x[0]+'<br><span class="mut">Instansi: '+x[1]+' · Lokasi: '+x[2]+' · Nilai: '+x[3]+' · Status: '+x[4]+'</span></div></div>').join(''):
+   '<div class="fl"><div><label for="b2bQ">kata kunci</label><input id="b2bQ" value="'+esc(O.q)+'" placeholder="website, software, CCTV..."></div><div><button type="button" id="b2bGo">cari peluang</button></div></div><div class="tabs" style="margin-top:8px">'+chips(B2B_CATS,'b2c')+'</div><div id="b2bR">'+b2bHtml()+'</div>');
 }
-$('op').onclick=e=>{const t=e.target.closest('button[data-i]');if(t&&lview[+t.dataset.i])showB(lview[+t.dataset.i])};
+$('op').addEventListener('click',e=>{
+  const t=e.target.closest('button');if(!t||t.disabled)return;
+  if(t.dataset.i!=null&&lview[+t.dataset.i])showB(lview[+t.dataset.i]);
+  else if(t.id==='b2bGo'){const q=$('b2bQ').value.trim();if(!q){put('b2bR','<div class="err">[!] ERROR: kata kunci kosong.</div>');return}b2bCall(q,1,t)}
+  else if(t.dataset.b2c){$('b2bQ').value=t.dataset.b2c;b2bCall(t.dataset.b2c,1,t)}
+  else if(t.dataset.w==='b2b'&&O.res&&O.res.ok)b2bCall(O.q,O.res.page+ +t.dataset.pg,t);
+});
 
 /* ---------- LEADS (CRM sederhana) ---------- */
 const STAT=['NEW','CONTACTED','INTERESTED','FOLLOW-UP','CLOSED','REJECTED'],PRI=['LOW','MEDIUM','HIGH'];
