@@ -5,22 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>bizfinder@root:~</title>
 <style>
-:root{--bg:#040a05;--pane:#071209;--fg:#3dff7a;--dim:#1c9a47;--mut:#6f9a7d;--warn:#ffd24d;--err:#ff5c5c;--line:#14401f}
+:root{--bg:#040a05;--pane:#071209;--fg:#3dff7a;--dim:#1c9a47;--mut:#6f9a7d;--warn:#ffd24d;--err:#ff5c5c;--line:#14401f;--hot:#ff8a3d}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.55 ui-monospace,"Cascadia Mono",Menlo,Consolas,"Liberation Mono",monospace}
 body:after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px)}
-.wrap{max-width:1120px;margin:0 auto;padding:12px}
+.wrap{max-width:1240px;margin:0 auto;padding:12px}
 .win{border:1px solid var(--line);border-radius:6px;background:var(--pane);margin-bottom:12px;overflow:hidden}
 .bar{display:flex;align-items:center;gap:6px;padding:6px 10px;background:#0b1d0f;border-bottom:1px solid var(--line);color:var(--mut);font-size:12px}
 .bar i{width:10px;height:10px;border-radius:50%;background:#ff5f56}.bar i+i{background:#ffbd2e}.bar i+i+i{background:#27c93f}
 .bar b{margin-left:8px;font-weight:400}
 .body{padding:12px}
 pre.banner{margin:0 0 8px;color:var(--fg);font-size:11px;line-height:1.1;overflow:auto}
-.mut{color:var(--mut)}.warn{color:var(--warn)}.err{color:var(--err)}.dim{color:var(--dim)}
+.mut{color:var(--mut)}.warn{color:var(--warn)}.err{color:var(--err)}.dim{color:var(--dim)}.hot{color:var(--hot)}.mid{color:var(--warn)}.low{color:var(--mut)}
 .ps{color:var(--fg)}.ps:before{content:"root@bizfinder:~# ";color:var(--warn)}
 .cur:after{content:"█";animation:bl 1s steps(1) infinite}
 @keyframes bl{50%{opacity:0}}
-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;align-items:end}
+form,.fl{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;align-items:end}
 label{display:block;font-size:12px;color:var(--mut);margin-bottom:2px}
 input,select,textarea{width:100%;background:#020702;color:var(--fg);border:1px solid var(--line);border-radius:3px;padding:8px;font:inherit;outline:none}
 input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{border-color:var(--fg);box-shadow:0 0 0 1px var(--fg)}
@@ -33,22 +33,33 @@ button:disabled{opacity:.5;cursor:wait}
 .hide{display:none!important}
 #hack{position:relative}
 #rain{position:absolute;inset:0;width:100%;height:100%;opacity:.35}
-#log{position:relative;height:230px;overflow:auto;padding:10px 12px;font-size:12.5px;white-space:pre-wrap;word-break:break-all}
+#log{position:relative;height:250px;overflow:auto;padding:10px 12px;font-size:12.5px;white-space:pre-wrap;word-break:break-all}
 #prog{height:3px;background:var(--fg);width:0;box-shadow:0 0 8px var(--fg)}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;align-items:center}
 .tabs .on{background:var(--fg);color:#000}
-.tabs input{max-width:220px;margin-left:auto}
-.stats{color:var(--mut);margin-bottom:8px}.stats b{color:var(--fg);font-weight:400}
+.stats{color:var(--mut);margin:8px 0}.stats b{color:var(--fg);font-weight:400}
 .tw{overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:760px;font-size:13px}
-th{color:var(--mut);text-align:left;font-weight:400;border-bottom:1px dashed var(--dim);padding:6px 8px}
+table{border-collapse:collapse;width:100%;min-width:1000px;font-size:13px}
+th{color:var(--mut);text-align:left;font-weight:400;border-bottom:1px dashed var(--dim);padding:6px 8px;white-space:nowrap}
 td{padding:6px 8px;border-bottom:1px solid #0d2a14;vertical-align:top}
 tr:hover td{background:#0b1d0f}
 td button,td .btn{padding:3px 8px;font-size:12px}
-td a.w{color:var(--fg)}
+td a.w,a.w{color:var(--fg)}
+td input,td select{padding:3px 5px;font-size:12px}
 .empty{padding:22px 8px;color:var(--mut)}
 textarea{min-height:130px;resize:vertical}
 details summary{cursor:pointer;color:var(--mut)}
+.dash{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.dc{border:1px solid var(--line);padding:8px 10px;background:#020702}
+.dc small{display:block;color:var(--mut);font-size:11px}.dc strong{font-size:22px;font-weight:400}
+.sec{color:var(--mut);margin:14px 0 6px;border-bottom:1px dashed var(--line)}
+.demo{color:#000;background:var(--warn);padding:2px 8px;display:inline-block;margin-bottom:8px;font-weight:700}
+.opp{border:1px solid var(--line);padding:8px 10px;margin-bottom:6px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.opp>div{flex:1;min-width:200px}
+#md{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:16px}
+#md .win{max-width:620px;width:100%;margin:0}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:2px 10px;word-break:break-word}.kv span:nth-child(odd){color:var(--mut)}
+ul.pl{margin:6px 0;padding-left:18px}ul.pl li{margin-bottom:4px}
 @media (prefers-reduced-motion:reduce){.cur:after{animation:none}}
 </style>
 </head>
@@ -58,15 +69,33 @@ details summary{cursor:pointer;color:var(--mut)}
 <div class="win">
   <div class="bar"><i></i><i></i><i></i><b>bizfinder@root: ~</b></div>
   <div class="body">
-<pre class="banner" aria-label="Biz Finder Pro">
- ___ _        ___ _         _             ___
-| _ |_)___   | __(_)_ _  __| |___ _ _    | _ \_ _ ___
-| _ \ |_ /   | _|| | ' \/ _` / -_) '_|   |  _/ '_/ _ \
-|___/_/__|   |_| |_|_||_\__,_\___|_|     |_| |_| \___/</pre>
-    <div class="mut">Pencari prospek UMKM dari data OpenStreetMap. Ketik lokasi, pilih kategori, jalankan.</div>
+<pre class="banner" aria-label="BizFinder">
+ ___ _        ___ _         _
+| _ |_)___   | __(_)_ _  __| |___ _ _
+| _ \ |_ /   | _|| | ' \/ _` / -_) '_|
+|___/_/__|   |_| |_|_||_\__,_\___|_|   MARKET INTELLIGENCE</pre>
+    <div>BUSINESS RESEARCH / MARKET INTELLIGENCE</div>
+    <div class="mut">Discover businesses. Analyze markets. Find opportunities.</div>
+    <div class="mut" style="font-size:12px">Sumber aktif: © OpenStreetMap contributors</div>
   </div>
 </div>
 
+<div class="win">
+  <div class="bar"><i></i><i></i><i></i><b>intel.dash</b></div>
+  <div class="body"><div id="dem" class="demo hide">[DEMO DATA — NOT REAL]</div><div class="dash" id="dash"></div></div>
+</div>
+
+<div class="tabs" id="nav">
+  <button type="button" data-t="discover" class="on">[DISCOVER]</button>
+  <button type="button" data-t="market">[MARKET]</button>
+  <button type="button" data-t="price">[PRICE]</button>
+  <button type="button" data-t="opp">[OPPORTUNITY]</button>
+  <button type="button" data-t="leads">[LEADS:<span id="sc">0</span>]</button>
+  <button type="button" data-t="export">[EXPORT]</button>
+  <button type="button" data-t="policy">[DATA POLICY]</button>
+</div>
+
+<section id="p-discover">
 <div class="win">
   <div class="bar"><i></i><i></i><i></i><b>scan.sh</b></div>
   <div class="body">
@@ -108,18 +137,25 @@ details summary{cursor:pointer;color:var(--mut)}
 <div class="win">
   <div class="bar"><i></i><i></i><i></i><b>hasil.log</b></div>
   <div class="body">
-    <div class="tabs">
-      <button type="button" id="tS" class="on">[hasil]</button>
-      <button type="button" id="tV">[tersimpan:<span id="sc">0</span>]</button>
-      <button type="button" id="ex">export.csv</button>
-      <input id="q" placeholder="grep nama / alamat..." aria-label="Filter hasil">
+    <div class="fl">
+      <div><label for="fw">website</label><select id="fw"><option value="">semua</option><option value="has">ada website</option><option value="no">tidak ada website</option></select></div>
+      <div><label for="ft">telepon</label><select id="ft"><option value="">semua</option><option value="has">ada telepon</option><option value="no">tidak ada telepon</option></select></div>
+      <div><label for="fc">kategori</label><select id="fc"></select></div>
+      <div><label for="fk">kota</label><select id="fk"></select></div>
+      <div><label for="fs">kecamatan</label><select id="fs"></select></div>
+      <div><label for="fp">potensi</label><select id="fp"><option value="">semua</option><option value="hot">HIGH</option><option value="mid">MEDIUM</option><option value="low">LOW</option></select></div>
+      <div><label for="q">grep</label><input id="q" placeholder="nama / alamat..." aria-label="Filter hasil"></div>
+      <div><label for="tplSel">template WA</label><select id="tplSel"></select></div>
     </div>
+    <div class="tabs" style="margin-top:10px"><button type="button" id="chk">cek website</button><button type="button" id="ex">export.csv</button><span class="mut" id="chkmsg"></span></div>
     <div class="stats" id="st"></div>
     <div class="tw"><table>
-      <thead><tr><th>#</th><th>nama</th><th>kategori</th><th>alamat</th><th>telepon</th><th>web</th><th>aksi</th></tr></thead>
+      <thead><tr><th>#</th><th>nama</th><th>kategori</th><th>alamat</th><th>kota</th><th>telepon</th><th>web</th><th>social</th><th>status web</th><th>src</th><th>skor*</th><th>aksi</th></tr></thead>
       <tbody id="tb"></tbody>
     </table></div>
     <div class="empty" id="em"><span class="ps cur">menunggu perintah</span></div>
+    <div class="tabs"><button type="button" id="pv">&lt;</button><span class="mut" id="pg"></span><button type="button" id="nx">&gt;</button></div>
+    <div class="mut" style="font-size:12px">*Estimated Opportunity Score: perkiraan dari data yang tersedia, bukan fakta objektif. Source: © OpenStreetMap contributors</div>
   </div>
 </div>
 
@@ -127,41 +163,126 @@ details summary{cursor:pointer;color:var(--mut)}
   <div class="bar"><i></i><i></i><i></i><b>pitch.conf</b></div>
   <div class="body">
     <details>
-      <summary>edit template pesan WhatsApp ({nama_bisnis}, {kota})</summary>
+      <summary>edit template pesan WhatsApp terpilih ({nama_bisnis}, {kota}, {kategori})</summary>
       <textarea id="wa" aria-label="Template WhatsApp"></textarea>
       <div style="margin-top:8px;display:flex;gap:8px"><button type="button" id="waS">simpan</button><button type="button" id="waR">reset</button></div>
     </details>
   </div>
 </div>
+</section>
+
+<section id="p-market" class="hide"><div class="win"><div class="bar"><i></i><i></i><i></i><b>market.snapshot</b></div><div class="body" id="mk"></div></div></section>
+<section id="p-price" class="hide"><div class="win"><div class="bar"><i></i><i></i><i></i><b>price.intel</b></div><div class="body" id="pr"></div></div></section>
+<section id="p-opp" class="hide"><div class="win"><div class="bar"><i></i><i></i><i></i><b>opportunity.sh</b></div><div class="body" id="op"></div></div></section>
+<section id="p-leads" class="hide"><div class="win"><div class="bar"><i></i><i></i><i></i><b>leads.crm</b></div><div class="body" id="ld"></div></div></section>
+<section id="p-export" class="hide"><div class="win"><div class="bar"><i></i><i></i><i></i><b>export.sh</b></div><div class="body" id="xp"></div></div></section>
+<section id="p-policy" class="hide"><div class="win"><div class="bar"><i></i><i></i><i></i><b>DATA_POLICY.txt</b></div><div class="body">
+<div>[DATA POLICY]</div>
+<ul class="pl">
+<li><b>Sumber data:</b> OpenStreetMap (Nominatim + Overpass) untuk bisnis. BPS, Satu Data Indonesia, LKPP dan Price berstatus NOT CONFIGURED sampai ada sumber/credential yang sah.</li>
+<li><b>Attribution:</b> © OpenStreetMap contributors (ODbL). Data OSM tidak boleh diperlakukan sebagai database komersial yang melanggar lisensinya.</li>
+<li>Data bersifat publik, tetapi "dapat dilihat" tidak otomatis berarti bebas dipakai: ikuti license/Terms of Service tiap sumber.</li>
+<li>Hanya data kontak bisnis yang dipublikasikan untuk keperluan bisnis. Jangan mengumpulkan data pribadi sensitif.</li>
+<li>Jangan gunakan data untuk spam. WhatsApp hanya dibuka lewat wa.me dan pesan dikirim sendiri oleh pengguna.</li>
+<li>Skor peluang adalah "Estimated Opportunity Score": perkiraan, bukan fakta. Data demo selalu berlabel [DEMO DATA — NOT REAL].</li>
+<li>Pengguna bertanggung jawab mematuhi aturan masing-masing sumber data.</li>
+</ul></div></div></section>
 
 </div>
+<div id="md" class="hide"></div>
+
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const DEF_WA=`Halo Kak, salam kenal! Saya perhatikan bisnis {nama_bisnis} di {kota} ulasan & layanannya sangat populer.\n\nNamun di internet belum terdapat Website Resmi untuk pendaftaran/katalog online.\n\nSaya freelancer web developer profesional. Saya sedang ada promo paket website UMKM lengkap dengan domain & desain elegan agar usaha Kakak makin dipercaya pelanggan Google.\n\nBoleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
-const store={
-  get(k){try{return localStorage.getItem(k)}catch{return null}},
-  set(k,v){try{localStorage.setItem(k,v)}catch{}}
-};
-let cur=[],saved=[],tab='s',waTpl=store.get('biz_finder_wa_template')||DEF_WA;
-try{saved=JSON.parse(store.get('biz_finder_saved_leads')||'[]');if(!Array.isArray(saved))saved=[]}catch{saved=[]}
-$('wa').value=waTpl;$('sc').textContent=saved.length;
+const store={get(k){try{return localStorage.getItem(k)}catch{return null}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
+const KEY='biz_finder_saved_leads',PAGE=50;
 
+/* ---------- adapter sumber data (belum ada yang dipalsukan) ---------- */
+const DATA_SOURCES={
+  osm:{name:'OpenStreetMap',endpoint:'/api/search',configured:true},
+  bps:{name:'BPS',endpoint:'/api/bps',configured:false,env:'BPS_API_KEY'},
+  satuData:{name:'Satu Data Indonesia',endpoint:'/api/satudata',configured:false},
+  lkpp:{name:'LKPP / Pengadaan',endpoint:'/api/lkpp',configured:false},
+  price:{name:'Price Intelligence',endpoint:'/api/price',configured:false}
+};
+const srcOn=Object.values(DATA_SOURCES).filter(s=>s.configured).length,srcAll=Object.keys(DATA_SOURCES).length;
+
+/* ---------- template WhatsApp ---------- */
+const DEF_TPL={
+ website:'Halo Kak, salam kenal! Saya perhatikan bisnis {nama_bisnis} ({kategori}) di {kota} belum memiliki Website Resmi.\n\nSaya web developer, menyediakan paket website UMKM lengkap dengan domain & desain rapi agar usaha Kakak lebih dipercaya pelanggan.\n\nBoleh saya kirimkan contoh desainnya Kak? Terima kasih!',
+ pos:'Halo Kak, salam kenal! Untuk usaha {nama_bisnis} di {kota}, saya menawarkan aplikasi kasir (POS) agar pencatatan penjualan & stok {kategori} lebih rapi.\n\nBoleh saya jelaskan singkat fiturnya Kak?',
+ marketing:'Halo Kak, salam kenal! Saya membantu digital marketing untuk bisnis {kategori} seperti {nama_bisnis} di {kota} (profil Google Maps, media sosial, iklan lokal).\n\nBoleh saya kirim ringkasan layanannya Kak?',
+ followup:'Halo Kak, saya follow up pesan sebelumnya mengenai {nama_bisnis}. Apakah Kakak sudah sempat mempertimbangkan? Saya siap menjawab pertanyaan apa pun. Terima kasih!',
+ intro:'Halo Kak, salam kenal! Saya menemukan {nama_bisnis} di {kota}. Boleh saya berkenalan dan menjelaskan layanan yang mungkin membantu usaha Kakak?'
+};
+const TPL_NAME={website:'Website Offer',pos:'POS Offer',marketing:'Digital Marketing',followup:'Follow Up',intro:'General Introduction'};
+let TPL=Object.assign({},DEF_TPL);
+try{Object.assign(TPL,JSON.parse(store.get('biz_finder_wa_templates')||'{}'))}catch{}
+const oldTpl=store.get('biz_finder_wa_template');if(oldTpl&&!store.get('biz_finder_wa_templates'))TPL.website=oldTpl;
+$('tplSel').innerHTML=Object.keys(TPL_NAME).map(k=>'<option value="'+k+'">'+TPL_NAME[k]+'</option>').join('');
+$('wa').value=TPL.website;
+$('tplSel').onchange=()=>$('wa').value=TPL[$('tplSel').value];
+$('waS').onclick=()=>{TPL[$('tplSel').value]=$('wa').value.trim()||DEF_TPL[$('tplSel').value];store.set('biz_finder_wa_templates',JSON.stringify(TPL));alert('Template tersimpan.')};
+$('waR').onclick=()=>{const k=$('tplSel').value;TPL[k]=DEF_TPL[k];$('wa').value=DEF_TPL[k];store.set('biz_finder_wa_templates',JSON.stringify(TPL))};
+
+/* ---------- model data & skor ---------- */
+const today=()=>new Date().toISOString().slice(0,10);
+function score(b){
+  const ws=b.websiteStatus,F={};
+  F.website={pts:ws==='No Website'?30:ws==='Website Unreachable'?15:0,max:30,why:ws==='No Website'?'tidak ada website di data sumber':ws==='Website Unreachable'?'website tercatat tetapi tidak dapat diakses':'website tercatat'+(b.webChecked?' & dapat diakses':'')};
+  F.phone={pts:b.phone?10:0,max:10,why:b.phone?'nomor bisnis tersedia':'nomor tidak tersedia'};
+  const catOk=b.category&&!/^umkm$/i.test(b.category);
+  F.category={pts:catOk?10:0,max:10,why:catOk?'kategori bisnis jelas':'kategori tidak spesifik'};
+  F.location={pts:b.latitude!=null&&b.longitude!=null?10:0,max:10,why:b.latitude!=null?'koordinat tersedia':'koordinat tidak tersedia'};
+  const real=b.address&&!/\(Peta Area\)/.test(b.address),extra=(b.social&&b.social.length)||b.openingHours;
+  F.businessData={pts:(real?5:0)+(extra?5:0),max:10,why:(real?'alamat lengkap':'alamat umum')+', '+(extra?'ada social/jam buka':'tanpa social/jam buka')};
+  F.market={pts:null,max:20,why:'N/A (sumber data pasar belum dikonfigurasi)'};
+  let g=0,m=0;for(const k in F)if(F[k].pts!=null){g+=F[k].pts;m+=F[k].max}
+  b.scoreFactors=F;b.opportunityScore=m?Math.round(g/m*100):0;return b;
+}
+const tier=s=>s>=75?['🔥','HIGH POTENTIAL','hot']:s>=45?['⚡','MEDIUM','mid']:['○','LOW','low'];
+const toBiz=r=>score({id:r.id||'x_'+Math.random().toString(36).slice(2),name:r.name||'-',category:r.category||'',address:r.address||'',city:r.city||'',suburb:r.suburb||'',
+  latitude:r.latitude!=null?r.latitude:(r.lat!=null?r.lat:null),longitude:r.longitude!=null?r.longitude:(r.lon!=null?r.lon:null),
+  phone:r.phone||'',website:r.website||'',websiteStatus:r.websiteStatus||(r.website?'Website Found':'No Website'),webChecked:!!r.webChecked,
+  social:Array.isArray(r.social)?r.social:[],source:Array.isArray(r.source)?r.source:['OSM'],openingHours:r.openingHours||'',
+  opportunityScore:0,scoreFactors:{},leadStatus:r.leadStatus||'NEW',notes:r.notes||'',priority:r.priority||'MEDIUM',lastContact:r.lastContact||'',
+  discoveredAt:r.discoveredAt||new Date().toISOString(),demo:!!r.demo});
+
+let cur=[],saved=[],demoMode=false,lastCity='',page=1,view=[],lview=[],demoMkt=null;
+try{const a=JSON.parse(store.get(KEY)||'[]');saved=Array.isArray(a)?a.map(toBiz):[]}catch{saved=[]}
+const same=(a,b)=>a.id&&b.id?a.id===b.id:(a.name===b.name&&a.address===b.address);
+const isSaved=b=>saved.some(s=>same(s,b));
+const persist=()=>{store.set(KEY,JSON.stringify(saved));$('sc').textContent=saved.length};
+$('sc').textContent=saved.length;
+const webOk=b=>/^https?:\/\//i.test(b.website||'');
+
+/* ---------- navigasi ---------- */
+function go(t){
+  ['discover','market','price','opp','leads','export','policy'].forEach(k=>$('p-'+k).classList.toggle('hide',k!==t));
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+  ({market:rMarket,price:rPrice,opp:rOpp,leads:rLeads,export:rExport})[t]&&({market:rMarket,price:rPrice,opp:rOpp,leads:rLeads,export:rExport})[t]();
+}
+$('nav').onclick=e=>{const b=e.target.closest('button[data-t]');if(b)go(b.dataset.t)};
 $('cat').onchange=e=>$('cc').classList.toggle('hide',e.target.value!=='custom');
 
-/* ---------- efek "hacking" ---------- */
+/* ---------- dashboard ---------- */
+function dash(){
+  const hp=cur.filter(b=>b.opportunityScore>=75).length,d=demoMode;
+  const c=[['BUSINESSES',cur.length],['NO WEBSITE',cur.filter(b=>b.websiteStatus==='No Website').length],['HIGH POT.',hp],
+    ['MARKET SOURCES',srcOn+'/'+srcAll],['DATASETS',d?3:'-'],['B2B SIGNALS',d?2:'-'],['LEADS',saved.length]];
+  $('dash').innerHTML=c.map(x=>'<div class="dc"><small>'+x[0]+'</small><strong>'+x[1]+'</strong></div>').join('');
+  $('dem').classList.toggle('hide',!d);
+}
+
+/* ---------- efek terminal ---------- */
 let rainT=null;
 function startRain(){
-  const c=$('rain'),x=c.getContext('2d');
-  c.width=c.clientWidth;c.height=c.clientHeight;
+  const c=$('rain'),x=c.getContext('2d');c.width=c.clientWidth;c.height=c.clientHeight;
   const n=Math.floor(c.width/12),y=Array.from({length:n},()=>Math.random()*-30),ch='01abcdef{}<>/$#%&*=+;:[]ABCDEF';
   clearInterval(rainT);
-  rainT=setInterval(()=>{
-    x.fillStyle='rgba(7,18,9,.14)';x.fillRect(0,0,c.width,c.height);
-    x.fillStyle='#3dff7a';x.font='12px monospace';
-    y.forEach((v,i)=>{x.fillText(ch[Math.random()*ch.length|0],i*12,v*12);y[i]=(v*12>c.height&&Math.random()>.95)?0:v+1});
-  },55);
+  rainT=setInterval(()=>{x.fillStyle='rgba(7,18,9,.14)';x.fillRect(0,0,c.width,c.height);x.fillStyle='#3dff7a';x.font='12px monospace';
+    y.forEach((v,i)=>{x.fillText(ch[Math.random()*ch.length|0],i*12,v*12);y[i]=(v*12>c.height&&Math.random()>.95)?0:v+1})},55);
 }
 const stopRain=()=>clearInterval(rainT);
 const hex=n=>Array.from({length:n},()=>(Math.random()*256|0).toString(16).padStart(2,'0')).join(' ');
@@ -171,147 +292,250 @@ async function log(t,cls=''){
   d.textContent=t;$('log').scrollTop=1e9;return d;
 }
 async function anim(city,cat,isDone){
-  const intro=[
-    ['$ ./bizfinder --lokasi "'+city+'" --kategori '+cat,'warn'],
-    ['[*] memuat modul scanner v1.1 ............ ok','dim'],
-    ['[*] resolving nominatim.openstreetmap.org ...','dim'],
-    ['[*] membuka tunnel ke overpass-api.de:443 ..','dim'],
-    ['[*] menyusun query bounding box ...........','dim'],
-    ['[*] mengirim query, menunggu respons ......','dim']
-  ];
-  for(const [t,c] of intro){await log(t,c);await sleep(60)}
+  for(const [t,c] of [['root@bizfinder:~# market --location "'+city+'" --category '+cat,'warn'],['[+] loading OSM business intelligence ...','dim'],
+    ['[+] resolving nominatim.openstreetmap.org ...','dim'],['[+] membuka tunnel ke overpass-api.de:443 ..','dim'],['[+] menyusun query bounding box ......','dim'],['[+] mengirim query, menunggu respons ...','dim']]){await log(t,c);await sleep(60)}
   let i=0;
-  while(!isDone()){
-    const off=(Math.random()*0xffffff|0).toString(16).padStart(6,'0');
-    await log('0x'+off+'  '+hex(14)+'  '+(i++%4===0?'[recv]':'')); await sleep(40);
-  }
+  while(!isDone()){await log('0x'+(Math.random()*0xffffff|0).toString(16).padStart(6,'0')+'  '+hex(14)+'  '+(i++%4===0?'[recv]':''));await sleep(40)}
 }
 function setProg(p,fast){const b=$('prog');b.style.transition=fast?'width .3s':'width 14s cubic-bezier(.1,.7,.3,1)';b.style.width=p+'%'}
 
 /* ---------- pencarian ---------- */
 $('f').addEventListener('submit',async e=>{
   e.preventDefault();
-  const city=$('city').value.trim();
-  let cat=$('cat').value;
-  if(cat==='custom'){cat=$('cust').value.trim().toLowerCase();}
+  const city=$('city').value.trim(),wf=$('wf').value;let cat=$('cat').value;
+  if(cat==='custom')cat=$('cust').value.trim().toLowerCase();
   if(!city||!cat){alert(!city?'Lokasi belum diisi.':'Kategori custom belum diisi.');return}
-  $('hack').classList.remove('hide');$('log').textContent='';$('go').disabled=true;
-  $('hacktitle').textContent='proses pemindaian';
+  $('hack').classList.remove('hide');$('log').textContent='';$('go').disabled=true;$('hacktitle').textContent='proses pemindaian';
   startRain();setProg(0,true);void $('prog').offsetWidth;setProg(92,false);
-  if(location.protocol==='file:'){
-    stopRain();$('go').disabled=false;
-    await log('[!] gagal: halaman dibuka lewat file://. Buka lewat URL Vercel atau jalankan "vercel dev".','err');return;
-  }
+  if(location.protocol==='file:'){stopRain();$('go').disabled=false;await log('[!] ERROR: halaman dibuka lewat file://. Buka lewat URL Vercel atau jalankan "vercel dev".','err');return}
+  const key=JSON.stringify([city.toLowerCase(),cat,wf]);let cached=null;
+  try{const c=JSON.parse(store.get('biz_last_search')||'null');if(c&&c.k===key&&Date.now()-c.t<300000)cached=c.p}catch{}
   let done=false;
-  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),45000);
-  const req=fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},signal:ctl.signal,
-    body:JSON.stringify({city,category:cat,websiteFilter:$('wf').value})})
-    .then(async r=>{
+  const run=async()=>{
+    if(cached)return cached;
+    const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),45000);
+    try{
+      const r=await fetch('/api/search',{method:'POST',headers:{'Content-Type':'application/json'},signal:ctl.signal,body:JSON.stringify({city,category:cat,websiteFilter:wf})});
       let p;try{p=await r.json()}catch{
         throw new Error(r.status===404?'Endpoint /api/search tidak ditemukan (HTTP 404). Pastikan file ada di api/search.js lalu deploy ulang.':
-          r.status===504?'Server kehabisan waktu (HTTP 504). Coba lokasi/kategori lebih spesifik.':
-          'Fungsi server error (HTTP '+r.status+'). Cek Vercel > Logs.');
-      }
+          r.status===429?'Rate limit tercapai (HTTP 429). Coba beberapa saat lagi.':
+          r.status===504?'Server kehabisan waktu (HTTP 504). Coba lokasi/kategori lebih spesifik.':'Fungsi server error (HTTP '+r.status+'). Cek Vercel > Logs.')}
       if(!r.ok||!p.ok){const er=new Error(p&&p.error||'HTTP '+r.status);er.details=(p&&p.details)||[];er.code=p&&p.code;throw er}
-      return p;
-    }).finally(()=>{done=true;clearTimeout(to)});
+      store.set('biz_last_search',JSON.stringify({k:key,t:Date.now(),p}));return p;
+    }finally{clearTimeout(to);done=true}
+  };
+  const req=run().finally(()=>{done=true});
   const a=anim(city,cat,()=>done);
   const res=await req.then(v=>({v}),er=>({er}));
-  await a;stopRain();setProg(100,true);
-  $('go').disabled=false;
+  await a;stopRain();setProg(100,true);$('go').disabled=false;
   if(res.er){
-    const er=res.er;
-    const m=er.name==='AbortError'?'permintaan lebih dari 45 detik':er.message;
-    $('hacktitle').textContent='gagal';
-    await log('[!] ERROR: '+m,'err');
+    const er=res.er,m=er.name==='AbortError'?'timeout: permintaan lebih dari 45 detik':er.message;
+    $('hacktitle').textContent='gagal';await log('[!] ERROR: '+m,'err');
     for(const d of (er.details||[]).slice(0,6))await log('    - '+d,'mut');
-    await log(er.code==='LOCATION_NOT_FOUND'?'[i] coba tulis lebih lengkap, mis. "Mojosari, Mojokerto".':'[i] coba lagi sebentar, atau jalankan --demo untuk melihat tampilan.','warn');
+    await log(er.code==='LOCATION_NOT_FOUND'?'[i] lokasi tidak ditemukan, coba tulis lebih lengkap, mis. "Mojosari, Mojokerto".':'[i] coba lagi sebentar, atau jalankan --demo untuk melihat tampilan.','warn');
     return;
   }
-  cur=Array.isArray(res.v.results)?res.v.results:[];
-  tab='s';
+  demoMode=false;lastCity=city;
+  cur=(Array.isArray(res.v.results)?res.v.results:[]).map(toBiz);
   $('hacktitle').textContent='selesai';
-  await log('[+] respons diterima, parsing data ...... ok','dim');
-  await log('[+] '+cur.length+' target ditemukan di '+(res.v.location&&res.v.location.displayName||city),'');
-  if(!cur.length)await log('[i] 0 hasil. Data OSM untuk UMKM masih terbatas: coba "Semua bisnis" atau lokasi lebih besar.','warn');
-  render();
+  const n=cur.length,nw=cur.filter(b=>b.websiteStatus==='No Website').length,tel=cur.filter(b=>b.phone).length;
+  const hi=cur.filter(b=>b.opportunityScore>=75).length,md=cur.filter(b=>b.opportunityScore>=45&&b.opportunityScore<75).length;
+  await log('[+] respons diterima'+(cached?' (cache lokal)':'')+', analisis peluang ... OK','dim');
+  await log('[+] '+n+' bisnis di '+(res.v.location&&res.v.location.displayName||city),'');
+  await log('Without website: '+nw+' | With phone: '+tel+' | High potential: '+hi+' | Medium: '+md,'');
+  const top=cur.slice().sort((x,y)=>y.opportunityScore-x.opportunityScore)[0];
+  if(top)await log('TOP: '+top.name+' | Score '+top.opportunityScore+'/100 (estimated) | Website '+(top.website?'FOUND':'NOT FOUND')+' | Phone '+(top.phone?'FOUND':'-'),'warn');
+  else await log('[i] 0 hasil. Data OSM untuk UMKM terbatas: coba "Semua bisnis" atau lokasi lebih besar.','warn');
+  page=1;fillFilters();render();dash();
   $('tb').closest('.win').scrollIntoView({behavior:'smooth',block:'start'});
 });
 
-/* ---------- tampilan hasil ---------- */
-const isSaved=b=>saved.some(s=>s.name===b.name&&s.address===b.address);
-function list(){
-  const src=tab==='s'?cur:saved,q=$('q').value.trim().toLowerCase();
-  return q?src.filter(b=>(b.name+' '+b.address+' '+b.category).toLowerCase().includes(q)):src;
+/* ---------- filter & tabel ---------- */
+const F=()=>({w:$('fw').value,t:$('ft').value,c:$('fc').value,k:$('fk').value,s:$('fs').value,p:$('fp').value,q:$('q').value.trim().toLowerCase()});
+function fill(id,vals,label){const v=$(id).value;$(id).innerHTML='<option value="">'+label+'</option>'+[...new Set(vals.filter(Boolean))].sort().map(x=>'<option>'+esc(x)+'</option>').join('');$(id).value=vals.includes(v)?v:''}
+function fillFilters(){fill('fc',cur.map(b=>b.category),'semua');fill('fk',cur.map(b=>b.city),'semua');fill('fs',cur.map(b=>b.suburb),'semua')}
+const tcls=b=>tier(b.opportunityScore)[2];
+function pass(b,f){
+  if(f.w==='has'&&!b.website)return false;if(f.w==='no'&&b.website)return false;
+  if(f.t==='has'&&!b.phone)return false;if(f.t==='no'&&b.phone)return false;
+  if(f.c&&b.category!==f.c)return false;if(f.k&&b.city!==f.k)return false;if(f.s&&b.suburb!==f.s)return false;
+  if(f.p&&tcls(b)!==f.p)return false;
+  return !f.q||(b.name+' '+b.address+' '+b.category).toLowerCase().includes(f.q);
 }
+const wsHtml=b=>b.websiteStatus==='No Website'?'<span class="warn">✗ NOT FOUND</span>':b.websiteStatus==='Website Unreachable'?'<span class="err">⚠ UNREACHABLE</span>':'<span>✓ FOUND'+(b.webChecked?' (checked)':'')+'</span>';
+const socHtml=b=>b.social&&b.social.length?b.social.map(s=>/^https?:/i.test(s.v)?'<a class="w" target="_blank" rel="noopener" href="'+esc(s.v)+'">'+esc(s.t)+'</a>':esc(s.t+':'+s.v)).join(' '):'<span class="mut">-</span>';
+const scHtml=b=>{const t=tier(b.opportunityScore);return '<span class="'+t[2]+'">'+t[0]+' '+b.opportunityScore+' '+t[1]+'</span>'};
+const mapsUrl=b=>'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(b.name+' '+b.address);
 function render(){
-  const L=list(),src=tab==='s'?cur:saved;
-  $('tS').classList.toggle('on',tab==='s');$('tV').classList.toggle('on',tab==='v');
-  $('sc').textContent=saved.length;
-  const noWeb=src.filter(b=>!b.website).length,tel=src.filter(b=>b.phone).length;
-  $('st').innerHTML='total <b>'+src.length+'</b> | tanpa web <b>'+noWeb+'</b> | ada telepon <b>'+tel+'</b> | estimasi peluang <b>Rp '+(noWeb*1500000).toLocaleString('id-ID')+'</b>';
-  $('em').classList.toggle('hide',L.length>0);
-  $('em').innerHTML=src.length?'<span class="warn">tidak ada baris yang cocok</span>':(tab==='s'?'<span class="ps cur">menunggu perintah</span>':'<span class="mut">belum ada prospek tersimpan</span>');
-  $('tb').innerHTML=L.map((b,i)=>{
-    const web=/^https?:\/\//i.test(b.website||'')?'<a class="w" target="_blank" rel="noopener" href="'+esc(b.website)+'">ada</a>':'<span class="warn">TANPA_WEB</span>';
-    const maps='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(b.name+' '+b.address);
-    return '<tr><td class="mut">'+(i+1)+'</td><td>'+esc(b.name)+'</td><td class="mut">'+esc(b.category||'UMKM')+'</td><td>'+esc(b.address)+'</td><td>'+(esc(b.phone)||'<span class="mut">-</span>')+'</td><td>'+web+'</td><td style="white-space:nowrap">'+
-      (b.phone?'<button data-a="wa" data-i="'+i+'">wa</button> ':'')+
-      '<a class="btn" target="_blank" rel="noopener" href="'+esc(maps)+'">maps</a> '+
-      '<button data-a="sv" data-i="'+i+'" title="simpan">'+(isSaved(b)?'[x]':'[ ]')+'</button></td></tr>';
-  }).join('');
+  const f=F();view=cur.filter(b=>pass(b,f)).sort((a,b)=>b.opportunityScore-a.opportunityScore);
+  const pages=Math.max(1,Math.ceil(view.length/PAGE));page=Math.min(page,pages);
+  const part=view.slice((page-1)*PAGE,page*PAGE);
+  $('st').innerHTML='total <b>'+cur.length+'</b> | tampil <b>'+view.length+'</b> | tanpa web <b>'+cur.filter(b=>b.websiteStatus==='No Website').length+'</b> | ada telepon <b>'+cur.filter(b=>b.phone).length+'</b>'+(demoMode?' | <span class="warn">[DEMO DATA — NOT REAL]</span>':'');
+  $('em').classList.toggle('hide',view.length>0);
+  $('em').innerHTML=cur.length?'<span class="warn">tidak ada baris yang cocok</span>':'<span class="ps cur">menunggu perintah</span>';
+  $('pg').textContent='hal '+page+'/'+pages;$('pv').disabled=page<=1;$('nx').disabled=page>=pages;
+  $('tb').innerHTML=part.map((b,i)=>{const x=(page-1)*PAGE+i;
+    const web=webOk(b)?'<a class="w" target="_blank" rel="noopener" href="'+esc(b.website)+'">ada</a>':'<span class="warn">-</span>';
+    return '<tr><td class="mut">'+(x+1)+'</td><td>'+esc(b.name)+'</td><td class="mut">'+esc(b.category||'-')+'</td><td>'+esc(b.address||'-')+'</td><td>'+esc(b.city||'-')+'</td><td>'+(esc(b.phone)||'<span class="mut">-</span>')+'</td><td>'+web+'</td><td>'+socHtml(b)+'</td><td>'+wsHtml(b)+'</td><td class="mut">'+esc(b.source.join('+'))+'</td><td>'+scHtml(b)+'</td><td style="white-space:nowrap"><button data-a="v" data-i="'+x+'">view</button> '+
+      (b.phone?'<button data-a="wa" data-i="'+x+'">wa</button> ':'')+'<a class="btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(b))+'">maps</a> <button data-a="sv" data-i="'+x+'" title="simpan lead">'+(isSaved(b)?'[x]':'[ ]')+'</button></td></tr>'}).join('');
 }
-$('tb').addEventListener('click',e=>{
-  const t=e.target.closest('button[data-a]');if(!t)return;
-  const b=list()[+t.dataset.i];if(!b)return;
-  if(t.dataset.a==='wa'){
-    let p=String(b.phone).replace(/\D/g,'');if(p.startsWith('0'))p='62'+p.slice(1);
-    const msg=waTpl.replace(/{nama_bisnis}/g,b.name).replace(/{kota}/g,b.city||'Anda');
-    window.open('https://wa.me/'+p+'?text='+encodeURIComponent(msg),'_blank','noopener');
-  }else{
-    const k=saved.findIndex(s=>s.name===b.name&&s.address===b.address);
-    if(k>=0)saved.splice(k,1);else saved.push(b);
-    store.set('biz_finder_saved_leads',JSON.stringify(saved));render();
-  }
-});
-$('tS').onclick=()=>{tab='s';render()};
-$('tV').onclick=()=>{tab='v';render()};
-$('q').oninput=render;
+['fw','ft','fc','fk','fs','fp'].forEach(id=>$(id).onchange=()=>{page=1;render()});
+let qT=null;$('q').oninput=()=>{clearTimeout(qT);qT=setTimeout(()=>{page=1;render()},250)};
+$('pv').onclick=()=>{page--;render()};$('nx').onclick=()=>{page++;render()};
 
-$('ex').onclick=()=>{
-  const L=list();if(!L.length){alert('Tidak ada data untuk diekspor.');return}
-  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
-  const rows=[['Nama','Kategori','Alamat','Kota','Telepon','Website','Status']].concat(
-    L.map(b=>[b.name,b.category,b.address,b.city,b.phone,b.website,b.website?'Punya Website':'Tanpa Website (Prospek)']));
-  const blob=new Blob(['\ufeff'+rows.map(r=>r.map(q).join(',')).join('\n')],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='bizfinder_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+/* ---------- aksi ---------- */
+function openWA(b){
+  if(!b.phone){alert('Nomor telepon tidak tersedia.');return}
+  let p=String(b.phone).replace(/\D/g,'');if(p.startsWith('0'))p='62'+p.slice(1);
+  const msg=TPL[$('tplSel').value].replace(/{nama_bisnis}/g,b.name).replace(/{kota}/g,b.city||'Anda').replace(/{kategori}/g,b.category||'usaha');
+  window.open('https://wa.me/'+p+'?text='+encodeURIComponent(msg),'_blank','noopener');
+  if(isSaved(b)){b.lastContact=today();persist();rLeads()}
+}
+function toggleSave(b){
+  if(b.demo){alert('Data demo tidak dapat disimpan sebagai lead.');return}
+  const k=saved.findIndex(s=>same(s,b));if(k>=0)saved.splice(k,1);else saved.push(b);persist();dash();
+}
+function act(t,b){
+  if(t.dataset.a==='wa')openWA(b);else if(t.dataset.a==='sv'){toggleSave(b);render();rLeads()}else if(t.dataset.a==='v')showB(b);
+}
+$('tb').addEventListener('click',e=>{const t=e.target.closest('button[data-a]');if(t&&view[+t.dataset.i])act(t,view[+t.dataset.i])});
+
+function showB(b){
+  const F=b.scoreFactors,t=tier(b.opportunityScore);
+  const fr=Object.keys(F).map(k=>'<li>'+k+': '+(F[k].pts==null?'N/A':'+'+F[k].pts+'/'+F[k].max)+' <span class="mut">('+esc(F[k].why)+')</span></li>').join('');
+  $('md').innerHTML='<div class="win"><div class="bar"><i></i><i></i><i></i><b>business.profile</b></div><div class="body">'+(b.demo?'<div class="demo">[DEMO DATA — NOT REAL]</div>':'')+
+  '<div class="kv"><span>Nama</span><span>'+esc(b.name)+'</span><span>Kategori</span><span>'+esc(b.category||'-')+'</span><span>Alamat</span><span>'+esc(b.address||'-')+'</span><span>Koordinat</span><span>'+(b.latitude!=null?esc(b.latitude+', '+b.longitude):'-')+'</span><span>Telepon</span><span>'+(esc(b.phone)||'-')+'</span><span>Website</span><span>'+(esc(b.website)||'-')+' ['+esc(b.websiteStatus)+']</span><span>Social</span><span>'+socHtml(b)+'</span><span>Source</span><span>'+esc(b.source.join(', '))+'</span></div>'+
+  '<div class="sec">OPPORTUNITY</div><div class="kv"><span>Estimated Score</span><span class="'+t[2]+'">'+t[0]+' '+b.opportunityScore+' '+t[1]+'</span><span>Website Opp.</span><span>'+F.website.pts+'/'+F.website.max+'</span><span>Market Opp.</span><span>N/A (NOT CONFIGURED)</span><span>B2B Opp.</span><span>N/A (NOT CONFIGURED)</span></div>'+
+  '<ul class="pl">'+fr+'</ul><div class="mut" style="font-size:12px">Skor adalah perkiraan dari data yang tersedia, bukan fakta objektif.</div>'+
+  '<div class="sec">ACTIONS</div><div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn" target="_blank" rel="noopener" href="'+esc(mapsUrl(b))+'">Open Maps</a>'+(webOk(b)?'<a class="btn" target="_blank" rel="noopener" href="'+esc(b.website)+'">Open Website</a>':'')+
+  (b.phone?'<button id="mwa">WhatsApp</button>':'')+'<button id="msv">'+(isSaved(b)?'Remove Lead':'Save Lead')+'</button><button id="mcl">Close</button></div></div></div>';
+  $('md').classList.remove('hide');
+  $('mcl').onclick=()=>$('md').classList.add('hide');
+  if($('mwa'))$('mwa').onclick=()=>openWA(b);
+  $('msv').onclick=()=>{toggleSave(b);$('md').classList.add('hide');render();rLeads()};
+}
+$('md').addEventListener('click',e=>{if(e.target===$('md'))$('md').classList.add('hide')});
+
+/* ---------- cek website (singkat, bertahap) ---------- */
+$('chk').onclick=async()=>{
+  if(location.protocol==='file:'){$('chkmsg').textContent='butuh server (Vercel)';return}
+  if(demoMode){$('chkmsg').textContent='data demo tidak dicek';return}
+  let cache={};try{cache=JSON.parse(store.get('biz_web_cache')||'{}')}catch{}
+  const apply=(u,s)=>cur.filter(b=>b.website===u).forEach(b=>{b.websiteStatus=s==='reachable'?'Website Found':'Website Unreachable';b.webChecked=true;score(b)});
+  const need=[];
+  for(const b of view){if(!webOk(b)||b.webChecked)continue;const c=cache[b.website];if(c&&Date.now()-c.t<864e5)apply(b.website,c.s);else if(!need.includes(b.website))need.push(b.website)}
+  const todo=need.slice(0,40);if(!todo.length){$('chkmsg').textContent='tidak ada website baru untuk dicek';render();return}
+  $('chk').disabled=true;let n=0;
+  for(let i=0;i<todo.length;i+=8){
+    $('chkmsg').textContent='mengecek '+Math.min(i+8,todo.length)+'/'+todo.length+' ...';
+    try{
+      const r=await fetch('/api/website-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({urls:todo.slice(i,i+8)})});
+      if(r.status===429)throw new Error('rate limit (HTTP 429)');if(!r.ok)throw new Error('HTTP '+r.status);
+      const p=await r.json();
+      for(const x of p.results||[]){if(x.status==='reachable'||x.status==='unreachable'){cache[x.url]={s:x.status,t:Date.now()};apply(x.url,x.status);n++}}
+    }catch(er){$('chkmsg').textContent='[!] ERROR cek website: '+er.message;break}
+  }
+  store.set('biz_web_cache',JSON.stringify(cache));$('chk').disabled=false;
+  if(!/ERROR/.test($('chkmsg').textContent))$('chkmsg').textContent=n+' website dicek';
+  render();dash();
 };
 
-$('waS').onclick=()=>{waTpl=$('wa').value.trim()||DEF_WA;store.set('biz_finder_wa_template',waTpl);alert('Template tersimpan.')};
-$('waR').onclick=()=>{waTpl=DEF_WA;$('wa').value=DEF_WA;store.set('biz_finder_wa_template',DEF_WA)};
+/* ---------- ekspor ---------- */
+const COLS=['name','category','address','city','latitude','longitude','phone','website','website_status','social','source','opportunity_score','lead_status','priority','last_contact','notes'];
+const row=b=>[b.name,b.category,b.address,b.city,b.latitude,b.longitude,b.phone,b.website,b.websiteStatus,(b.social||[]).map(s=>s.t+':'+s.v).join(' | '),b.source.join('+'),b.opportunityScore,b.leadStatus,b.priority,b.lastContact,b.notes];
+function dl(name,mime,content){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([content],{type:mime}));a.download=(demoMode&&name.indexOf('leads')<0?'DEMO_':'')+name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+function exportList(L,name,fmt){
+  if(!L.length){alert('Tidak ada data untuk diekspor.');return}
+  const d=today();
+  if(fmt==='json')return dl('bizfinder_'+name+'_'+d+'.json','application/json',JSON.stringify(L,null,2));
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  dl('bizfinder_'+name+'_'+d+'.csv','text/csv;charset=utf-8','\ufeff'+[COLS].concat(L.map(row)).map(r=>r.map(q).join(',')).join('\n'));
+}
+$('ex').onclick=()=>exportList(view,'current','csv');
+function rExport(){
+  const B=(id,l)=>'<button data-x="'+id+'">'+l+'</button> ';
+  $('xp').innerHTML='<div class="sec">EXPORT</div><div style="display:grid;gap:8px">'+
+   '<div>Current Results ('+view.length+') '+B('cur-csv','CSV')+B('cur-json','JSON')+'</div>'+
+   '<div>Saved Leads ('+saved.length+') '+B('lead-csv','CSV')+B('lead-json','JSON')+'</div>'+
+   '<div>Opportunities (skor ≥ 45: '+cur.filter(b=>b.opportunityScore>=45).length+') '+B('opp-csv','CSV')+B('opp-json','JSON')+'</div>'+
+   '<div>Market Data '+B('mkt-json','JSON')+'<span class="mut">'+(demoMkt?'[DEMO DATA — NOT REAL]':'belum ada data pasar (sumber NOT CONFIGURED)')+'</span></div></div>'+
+   '<div class="mut" style="margin-top:10px;font-size:12px">Kolom: '+COLS.join(', ')+'</div>';
+}
+$('xp').onclick=e=>{
+  const t=e.target.closest('button[data-x]');if(!t)return;const [k,fmt]=t.dataset.x.split('-');
+  if(k==='cur')exportList(view,'current',fmt);
+  else if(k==='lead')exportList(saved,'leads',fmt);
+  else if(k==='opp')exportList(cur.filter(b=>b.opportunityScore>=45).sort((a,b)=>b.opportunityScore-a.opportunityScore),'opportunities',fmt);
+  else if(demoMkt)dl('DEMO_bizfinder_market_'+today()+'.json','application/json',JSON.stringify(demoMkt,null,2));
+  else alert('Belum ada data pasar: semua sumber pasar berstatus NOT CONFIGURED.');
+};
 
-/* ---------- data demo ---------- */
+/* ---------- MARKET / PRICE / OPPORTUNITY ---------- */
+const demoTag='<div class="demo">[DEMO DATA — NOT REAL]</div>';
+function rMarket(){
+  const ind=['Population','Population Growth','Economic Growth','Poverty','Employment','Unemployment','Industry','Trade','Agriculture','Tourism'];
+  const dv=demoMkt?demoMkt.snapshot:{};
+  $('mk').innerHTML=(demoMode?demoTag:'')+'<div>MARKET SNAPSHOT</div><div class="mut">Location: '+esc(lastCity||'-')+'</div><div class="kv" style="margin:8px 0">'+
+    ind.map(i=>'<span>'+i+'</span><span>'+(dv[i]?esc(dv[i])+' <span class="warn">[DEMO]</span>':'----')+'</span>').join('')+'</div>'+
+    '<div class="warn">[BPS NOT CONFIGURED]</div><div class="mut" style="font-size:12px">Butuh '+DATA_SOURCES.bps.env+' (server-side) dan endpoint '+DATA_SOURCES.bps.endpoint+'. Belum ada data palsu yang ditampilkan.</div>'+
+    '<div class="sec">SATU DATA INDONESIA / data.go.id</div><input disabled placeholder="Search dataset..." aria-label="Search dataset"><div class="mut" style="margin:6px 0">UMKM · Penduduk · Pertanian · Perdagangan · Harga · Tenaga Kerja · Pariwisata · Industri · Transportasi</div>'+
+    '<div class="warn">[SATU DATA NOT CONFIGURED]</div>'+
+    '<div class="sec">SOURCES</div>'+Object.keys(DATA_SOURCES).map(k=>'<div>'+DATA_SOURCES[k].name+': '+(DATA_SOURCES[k].configured?'<span>ACTIVE</span>':'<span class="warn">NOT CONFIGURED</span>')+'</div>').join('');
+}
+function rPrice(){
+  const rows=demoMkt?demoMkt.price:[];
+  $('pr').innerHTML=(demoMode?demoTag:'')+'<div>PRICE INTELLIGENCE</div><div class="mut">Sembako · Sayur · Buah · Pertanian · Elektronik · HP · Sparepart · Komoditas</div>'+
+    (rows.length?'<table style="min-width:360px;margin-top:8px"><thead><tr><th>Product</th><th>Current</th><th>Change</th></tr></thead><tbody>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'</td></tr>').join('')+'</tbody></table>':'<div class="warn" style="margin-top:8px">PRICE SOURCE NOT CONFIGURED</div>');
+}
+function rOpp(){
+  const top=cur.slice().sort((a,b)=>b.opportunityScore-a.opportunityScore).slice(0,10);
+  lview=top;
+  $('op').innerHTML=(demoMode?demoTag:'')+'<div>TOP BUSINESS OPPORTUNITIES <span class="mut">(Estimated Opportunity Score)</span></div>'+
+   (top.length?top.map((b,i)=>'<div class="opp"><span class="mut">'+String(i+1).padStart(2,'0')+'</span><div>'+esc(b.name)+'<br><span class="mut">'+esc(b.category||'-')+' · '+(b.website?'Website '+esc(b.websiteStatus):'No Website')+' · Phone '+(b.phone?'✓':'-')+'</span></div><div>'+scHtml(b)+'</div><button data-i="'+i+'">[VIEW]</button></div>').join(''):'<div class="empty">Belum ada hasil. Jalankan pencarian di [DISCOVER].</div>')+
+   '<div class="sec">🔥 B2B OPPORTUNITY (LKPP / Pengadaan)</div>'+
+   (demoMkt&&demoMkt.b2b.length?demoMkt.b2b.map(x=>'<div class="opp"><div>'+x[0]+'<br><span class="mut">Instansi: '+x[1]+' · Lokasi: '+x[2]+' · Nilai: '+x[3]+' · Status: '+x[4]+'</span></div></div>').join(''):'<div class="warn">[LKPP NOT CONFIGURED]</div><div class="mut" style="font-size:12px">Nilai dan status proyek tidak dibuat bila sumber tidak menyediakannya.</div>');
+}
+$('op').onclick=e=>{const t=e.target.closest('button[data-i]');if(t&&lview[+t.dataset.i])showB(lview[+t.dataset.i])};
+
+/* ---------- LEADS (CRM sederhana) ---------- */
+const STAT=['NEW','CONTACTED','INTERESTED','FOLLOW-UP','CLOSED','REJECTED'],PRI=['LOW','MEDIUM','HIGH'];
+const opts=(a,v)=>a.map(x=>'<option'+(x===v?' selected':'')+'>'+x+'</option>').join('');
+function rLeads(){
+  $('sc').textContent=saved.length;
+  if(!$('p-leads').classList.contains('hide')||true){
+    $('ld').innerHTML='<div class="stats">leads <b>'+saved.length+'</b> '+STAT.map(s=>s+': <b>'+saved.filter(b=>b.leadStatus===s).length+'</b>').join(' | ')+'</div>'+
+    (saved.length?'<div class="tw"><table><thead><tr><th>nama</th><th>status</th><th>prioritas</th><th>skor*</th><th>last contact</th><th>notes</th><th>aksi</th></tr></thead><tbody>'+
+     saved.map((b,i)=>'<tr><td>'+esc(b.name)+'<br><span class="mut">'+esc(b.phone||'-')+'</span></td><td><select data-f="leadStatus" data-i="'+i+'">'+opts(STAT,b.leadStatus)+'</select></td><td><select data-f="priority" data-i="'+i+'">'+opts(PRI,b.priority)+'</select></td><td>'+scHtml(b)+'</td><td><input type="date" data-f="lastContact" data-i="'+i+'" value="'+esc(b.lastContact)+'"></td><td><input data-f="notes" data-i="'+i+'" value="'+esc(b.notes)+'" placeholder="catatan..."></td><td style="white-space:nowrap"><button data-a="v" data-i="'+i+'">view</button> '+(b.phone?'<button data-a="wa" data-i="'+i+'">wa</button> ':'')+'<button data-a="rm" data-i="'+i+'">hapus</button></td></tr>').join('')+'</tbody></table></div>':'<div class="empty">Belum ada lead tersimpan. Klik [ ] di tabel hasil.</div>');
+  }
+}
+$('ld').addEventListener('change',e=>{const t=e.target.closest('[data-f]');if(!t)return;const b=saved[+t.dataset.i];if(!b)return;
+  b[t.dataset.f]=t.value;if(t.dataset.f==='leadStatus'&&t.value!=='NEW'&&!b.lastContact)b.lastContact=today();persist();rLeads();dash()});
+$('ld').addEventListener('click',e=>{const t=e.target.closest('button[data-a]');if(!t)return;const b=saved[+t.dataset.i];if(!b)return;
+  if(t.dataset.a==='rm'){if(confirm('Hapus lead ini?')){saved.splice(+t.dataset.i,1);persist();rLeads();render();dash()}}else if(t.dataset.a==='wa')openWA(b);else showB(b)});
+
+/* ---------- demo (simulasi, tidak dicampur data asli) ---------- */
 $('demo').onclick=async()=>{
   const city=$('city').value.trim()||'Surabaya';
   $('hack').classList.remove('hide');$('log').textContent='';$('hacktitle').textContent='mode demo';
   startRain();setProg(0,true);void $('prog').offsetWidth;setProg(100,false);
-  await log('$ ./bizfinder --demo','warn');await log('[*] memuat data simulasi (bukan data asli) ...','dim');
-  let n=0;while(n++<8){await log('0x'+(Math.random()*0xffffff|0).toString(16).padStart(6,'0')+'  '+hex(14));await sleep(60)}
+  await log('root@bizfinder:~# market --demo','warn');await log('[DEMO DATA — NOT REAL] memuat data simulasi ...','warn');
+  for(let n=0;n<8;n++){await log('0x'+(Math.random()*0xffffff|0).toString(16).padStart(6,'0')+'  '+hex(14));await sleep(60)}
   stopRain();
-  const mk=(n,c,s,p,w)=>({id:'demo_'+n,name:n,category:c,address:s+', '+city,city,phone:p,website:w});
-  const all=[mk('Ayam Bakar Pak Joko','Restoran','Jl. Raya Darmo 42','081234567890',''),
-    mk('Barbershop Premiere','Barbershop','Jl. Pemuda 15','085711223344',''),
-    mk('Bengkel Motor Jaya Abadi','Bengkel','Jl. Ahmad Yani 88','081900887766',''),
-    mk('Klinik Gigi Smile Care','Klinik','Jl. Diponegoro 101','082199887711','https://smilecare-demo.com'),
-    mk('Toko Fashion Hits','Butik','Jl. Basuki Rahmat 24','081344556677',''),
-    mk('Laundry Express','Laundry','Jl. Mawar 7','','')];
+  const mk=(n,c,s,p,w)=>({id:'demo_'+n,name:n,category:c,address:s+', '+city,city,phone:p,website:w,latitude:-7.25,longitude:112.75,source:['DEMO'],demo:true});
+  const all=[mk('Ayam Bakar Pak Joko','Restoran','Jl. Raya Darmo 42','081234567890',''),mk('Barbershop Premiere','Barbershop','Jl. Pemuda 15','085711223344',''),
+    mk('Bengkel Motor Jaya Abadi','Bengkel','Jl. Ahmad Yani 88','081900887766',''),mk('Klinik Gigi Smile Care','Klinik','Jl. Diponegoro 101','082199887711','https://smilecare-demo.com'),
+    mk('Toko Fashion Hits','Butik','Jl. Basuki Rahmat 24','081344556677',''),mk('Laundry Express','Laundry','Jl. Mawar 7','','')];
   const f=$('wf').value;
-  cur=f==='no_website'?all.filter(b=>!b.website):f==='has_website'?all.filter(b=>b.website):all;
-  tab='s';await log('[+] '+cur.length+' target simulasi dimuat','');render();
+  cur=(f==='no_website'?all.filter(b=>!b.website):f==='has_website'?all.filter(b=>b.website):all).map(toBiz);
+  demoMode=true;lastCity=city;
+  demoMkt={snapshot:{Population:'1.000.000',Unemployment:'5,0%',Industry:'12.000 unit'},
+    price:[['Cabai','Rp 50.000','+12%'],['Bawang','Rp 35.000','-4%'],['Tomat','Rp 12.000','+8%']],
+    b2b:[['Pengadaan Sistem Informasi','Dinas Contoh','Jawa Timur','Rp 250.000.000','Tender (simulasi)'],['Pengadaan CCTV','Kantor Contoh','Jawa Timur','Rp 120.000.000','Rencana (simulasi)']]};
+  await log('[+] '+cur.length+' target simulasi dimuat [DEMO DATA — NOT REAL]','');
+  page=1;fillFilters();render();dash();
 };
-render();
+
+fillFilters();render();dash();rLeads();
 </script>
 </body>
 </html>
