@@ -520,7 +520,7 @@ function bpsHtml(){
   return (p.message?'<div class="warn">'+esc(p.message)+'</div>':'')+(p.note?'<div class="mut">'+esc(p.note)+'</div>':'')+'<div class="mut">RAW BPS ('+esc(p.model)+') — Source: BPS Web API</div><pre style="max-height:320px;overflow:auto;white-space:pre-wrap;word-break:break-all;font-size:12px">'+esc(JSON.stringify(p.data,null,1).slice(0,6000))+'</pre>';
 }
 function sdHtml(){
-  const p=M.sd;if(!p)return '<span class="mut">belum ada pencarian</span>';if(!p.ok)return errBox(p);
+  const p=M.sd;if(!p)return '<span class="mut">belum ada pencarian</span>';if(!p.ok)return errBox(p)+'<div class="mut">[i] cari manual: <a class="w" target="_blank" rel="noopener" href="https://data.go.id/dataset">data.go.id/dataset</a></div>';
   return (p.results.length?dsRows(p,M.sdq)+pager(p,'sd'):'<div class="warn">'+esc(p.message||'Tidak ada hasil.')+'</div>')+'<div class="mut" style="font-size:12px">Source: Satu Data Indonesia (data.go.id)'+(p.cached?' · cache':'')+'</div>';
 }
 async function bpsCall(url,b){busy(b,true);put('bpsR',loading);const p=await api(url);setSrc('bps',p);M.bps=p;put('bpsR',bpsHtml());busy(b,false)}
