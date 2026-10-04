@@ -60,7 +60,8 @@ async function fetchJson(url, label, timeoutMs, headers = {}) {
       response = await fetch(url, { headers: { 'User-Agent': UA, 'Accept': 'application/json', ...headers }, signal: controller.signal });
     } catch (err) {
       if (err && err.name === 'AbortError') throw makeError(label + ' timeout setelah ' + Math.round(timeoutMs / 1000) + ' detik.', { status: 504 });
-      throw makeError(label + ' tidak dapat diakses saat ini.', { status: 502 });
+      const code = (err && err.cause && (err.cause.code || err.cause.message)) || (err && err.message) || 'network error';
+      throw makeError(label + ' tidak dapat diakses (' + String(code).slice(0, 80) + ').', { status: 502 });
     }
     const text = await response.text();
     if (!response.ok) {
@@ -114,10 +115,10 @@ function parseSearch(payload) {
   return payload.result;
 }
 
-// Portal katalog resmi dicoba berurutan (cadangan dipakai bila yang utama gagal).
+// data.go.id sudah bermigrasi ke portal baru (bukan CKAN lagi), sehingga /api/3/action di sana 404.
+// Katalog CKAN lama tetap di katalog.data.go.id.
 const PORTALS = [
-  { base: 'https://katalog.data.go.id', api: 'https://katalog.data.go.id/api/3/action/package_search' },
-  { base: 'https://data.go.id', api: 'https://data.go.id/api/3/action/package_search' }
+  { base: 'https://katalog.data.go.id', api: 'https://katalog.data.go.id/api/3/action/package_search' }
 ];
 const SOURCE = 'Satu Data Indonesia';
 const TIMEOUT_MS = 20000;
