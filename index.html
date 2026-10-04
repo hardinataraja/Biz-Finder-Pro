@@ -464,7 +464,21 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
                 categoryTag = customCategory.toLowerCase();
             }
 
+            // Halaman dibuka langsung dari file (file://) -> /api/search tidak ada.
+            if (location.protocol === 'file:') {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Harus dijalankan lewat server',
+                    text: 'Buka lewat URL Vercel (atau jalankan "vercel dev"). Jika index.html dibuka langsung dari folder, endpoint /api/search tidak tersedia.',
+                    confirmButtonColor: '#10b981'
+                });
+                return false;
+            }
+
             showLoading(true);
+
+            const controller = new AbortController();
+            const abortTimer = setTimeout(() => controller.abort(), 45000);
 
             try {
                 const response = await fetch('/api/search', {
@@ -474,21 +488,31 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
                         city,
                         category: categoryTag,
                         websiteFilter
-                    })
+                    }),
+                    signal: controller.signal
                 });
 
                 let payload = null;
                 try {
                     payload = await response.json();
                 } catch (parseError) {
-                    throw new Error(`Respons server tidak valid (HTTP ${response.status}).`);
+                    if (response.status === 404) {
+                        throw new Error('Endpoint /api/search tidak ditemukan (HTTP 404). Pastikan file ada di api/search.js lalu deploy ulang.');
+                    }
+                    if (response.status === 504 || response.status === 408) {
+                        throw new Error('Server kehabisan waktu (HTTP ' + response.status + '). Coba lokasi/kategori yang lebih spesifik.');
+                    }
+                    throw new Error(`Fungsi server error (HTTP ${response.status}). Cek Vercel > Logs untuk detailnya.`);
                 }
 
                 if (!response.ok || !payload.ok) {
                     const providerMessage = payload && payload.error
                         ? payload.error
                         : `Pencarian gagal (HTTP ${response.status}).`;
-                    throw new Error(providerMessage);
+                    const err = new Error(providerMessage);
+                    err.details = payload && Array.isArray(payload.details) ? payload.details : [];
+                    err.code = payload && payload.code;
+                    throw err;
                 }
 
                 currentResults = Array.isArray(payload.results) ? payload.results : [];
@@ -498,7 +522,7 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
                     Swal.fire({
                         icon: 'info',
                         title: 'Tidak Ada Hasil',
-                        text: 'Tidak ada bisnis ditemukan dengan kriteria tersebut pada area ini.',
+                        text: 'Tidak ada bisnis ditemukan dengan kriteria tersebut. Data OpenStreetMap di beberapa daerah masih terbatas; coba filter "Semua Bisnis", kategori lain, atau nama lokasi yang lebih besar.',
                         confirmButtonColor: '#10b981',
                         customClass: { popup: 'rounded-2xl', confirmButton: 'rounded-xl font-bold text-xs px-4 py-2.5' }
                     });
@@ -506,14 +530,24 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
             } catch (err) {
                 console.error('Pencarian gagal:', err);
 
+                const message = err && err.name === 'AbortError'
+                    ? 'Permintaan terlalu lama (lebih dari 45 detik).'
+                    : (err && err.message) || 'Network Error';
+                const isNotFound = err && err.code === 'LOCATION_NOT_FOUND';
+                const detailHtml = (err && err.details && err.details.length)
+                    ? `<p class="text-[10px] text-slate-400 break-words">${err.details.map(escapeHtml).join('<br>')}</p>`
+                    : '';
+
+                renderResults(currentResults);
+
                 Swal.fire({
-                    icon: 'error',
-                    title: 'Pencarian Gagal',
+                    icon: isNotFound ? 'warning' : 'error',
+                    title: isNotFound ? 'Lokasi Tidak Ditemukan' : 'Pencarian Gagal',
                     html: `
                         <div class="text-left text-xs space-y-2 text-slate-600">
-                            <p><strong>Penyebab:</strong> <span class="text-rose-600">${escapeHtml(err.message || 'Network Error')}</span></p>
-                            <p>Server pencarian sedang sibuk atau tidak dapat menghubungi penyedia data OpenStreetMap.</p>
-                            <p class="text-slate-500">Silakan coba lagi beberapa saat kemudian atau gunakan area/kategori yang lebih spesifik.</p>
+                            <p><strong>Penyebab:</strong> <span class="text-rose-600">${escapeHtml(message)}</span></p>
+                            ${detailHtml}
+                            ${isNotFound ? '' : '<p class="text-slate-500">Coba lagi beberapa saat kemudian atau gunakan area/kategori yang lebih spesifik.</p>'}
                             <p class="font-semibold text-slate-700">Apakah Anda ingin menampilkan Data Simulasi Demo?</p>
                         </div>
                     `,
@@ -531,6 +565,7 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
                     if (result.isConfirmed) generateDemoData();
                 });
             } finally {
+                clearTimeout(abortTimer);
                 showLoading(false);
             }
 
@@ -692,7 +727,7 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
                             </a>
 
                             ${hasPhone ? `
-                                <button type="button" onclick="sendWaPitch('${encodeURIComponent(biz.name)}', '${encodeURIComponent(biz.city)}', '${biz.phone}')" 
+                                <button type="button" onclick="sendWaPitch('${safeEnc(biz.name)}', '${safeEnc(biz.city)}', '${escapeHtml(biz.phone)}')" 
                                     class="h-8 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs transition flex items-center gap-1 shadow-sm">
                                     <i class="fa-brands fa-whatsapp text-sm"></i> Chat WA
                                 </button>
@@ -752,7 +787,7 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
                     <td class="py-3 px-4 text-center">
                         <div class="flex items-center justify-center space-x-1.5">
                             ${hasPhone ? `
-                                <button type="button" onclick="sendWaPitch('${encodeURIComponent(biz.name)}', '${encodeURIComponent(biz.city)}', '${biz.phone}')" 
+                                <button type="button" onclick="sendWaPitch('${safeEnc(biz.name)}', '${safeEnc(biz.city)}', '${escapeHtml(biz.phone)}')" 
                                     class="px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white text-[11px] font-semibold transition flex items-center gap-1">
                                     <i class="fa-brands fa-whatsapp"></i> Chat WA
                                 </button>
@@ -1043,13 +1078,19 @@ Boleh saya kirimkan contoh desain websitenya Kak? Terima kasih!`;
         }
 
         function escapeHtml(str) {
-            if (!str) return '';
-            return str
+            if (str === null || str === undefined || str === '') return '';
+            return String(str)
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
                 .replace(/'/g, "&#039;");
+        }
+
+        // encodeURIComponent yang juga meng-encode tanda petik satu (') agar
+        // nama seperti "D'Cost" tidak merusak atribut onclick.
+        function safeEnc(str) {
+            return encodeURIComponent(String(str ?? '')).replace(/'/g, '%27');
         }
     </script>
 </body>
